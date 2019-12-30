@@ -1,4 +1,76 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-12-03T22:33:01-08:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">WSL Disk Performance</title><link href="/wsl/2019/11/03/wsl_disk_perf.html" rel="alternate" type="text/html" title="WSL Disk Performance" /><published>2019-11-03T00:00:00-07:00</published><updated>2019-11-03T00:00:00-07:00</updated><id>/wsl/2019/11/03/wsl_disk_perf</id><content type="html" xml:base="/wsl/2019/11/03/wsl_disk_perf.html">&lt;p&gt;The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-12-29T17:41:39-08:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">Git for Windows using WSL</title><link href="/wsl/2019/12/12/wsl_cross_plat_git.html" rel="alternate" type="text/html" title="Git for Windows using WSL" /><published>2019-12-12T00:00:00-08:00</published><updated>2019-12-12T00:00:00-08:00</updated><id>/wsl/2019/12/12/wsl_cross_plat_git</id><content type="html" xml:base="/wsl/2019/12/12/wsl_cross_plat_git.html">&lt;p&gt;For several years I used &lt;a href=&quot;https://git-scm.com/download/win&quot;&gt;Git for Windows&lt;/a&gt; to manage
+repositories and it proved decent enough. However, I found the Unix-like environment provided by
+Git for Windows to be very different than what I am used to with Linux. I have longed for a way
+to use Git from WSL to manage my repositories and continue to support tooling that ran on Windows
+that interfaced with Git.&lt;/p&gt;
+
+&lt;h1 id=&quot;whats-the-catch&quot;&gt;What’s the catch?&lt;/h1&gt;
+
+&lt;p&gt;This assumes that you use SSH keys for authentication. If you use passphrases on your keys then
+an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround
+to function in WSL.&lt;/p&gt;
+
+&lt;h2 id=&quot;performance&quot;&gt;Performance&lt;/h2&gt;
+
+&lt;p&gt;My day to day usage of Git in WSL I have not found a perceptible difference in performance.
+Below is a quick comparison of cloning a repository between the two.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone&lt;/code&gt; using Git for Windows
+&lt;img src=&quot;/assets/git_clone_git_on_win.png&quot; alt=&quot;git clone - Git for Windows&quot; title=&quot;git clone using Git for Windows&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone&lt;/code&gt; using WSL
+&lt;img src=&quot;/assets/git_clone_wsl.png&quot; alt=&quot;git clone - WSL&quot; title=&quot;git clone using WSL&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: This includes improvements to &lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;moving-the-git-configuration-to-wsl&quot;&gt;Moving the Git configuration to WSL&lt;/h1&gt;
+
+&lt;p&gt;Git for Windows by default uses your user profile directory to store configuration and SSH keys.
+Since the systems are mostly the same, you can copy them over to WSL.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cd /mnt/c/Users/&amp;lt;your_username&amp;gt;
+mv .gitconfig ~
+mv .ssh/ ~
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;line-endings&quot;&gt;Line Endings&lt;/h1&gt;
+
+&lt;p&gt;Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause
+some head-scratching during code reviews. Setting autocrlf to &lt;code class=&quot;highlighter-rouge&quot;&gt;input&lt;/code&gt; will checkout with line
+endings left as-is, and will convert them to LF when committing.&lt;/p&gt;
+
+&lt;p&gt;Enter the following in your WSL console.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git config --global core.autocrlf input
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It is recommended that repositories contain &lt;code class=&quot;highlighter-rouge&quot;&gt;.gitattrbutes&lt;/code&gt;; a configuration file that defines the
+desired line endings that will override the user settings. See 
+&lt;a href=&quot;https://help.github.com/en/github/using-git/configuring-git-to-handle-line-endings&quot;&gt;Configuring Git to Handle Line Endings&lt;/a&gt;
+for further information on configuration Git Attributes.&lt;/p&gt;
+
+&lt;h1 id=&quot;use-wsl-git-from-windows&quot;&gt;Use WSL Git from Windows&lt;/h1&gt;
+
+&lt;p&gt;Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from
+the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations.
+Luckily there is a tool called &lt;a href=&quot;https://github.com/andy-5/wslgit&quot;&gt;wslgit&lt;/a&gt; to forward those calls
+to WSL git.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create a directory under %programfiles% called &lt;code class=&quot;highlighter-rouge&quot;&gt;wslgit&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Download the &lt;a href=&quot;https://github.com/andy-5/wslgit&quot;&gt;wslgit&lt;/a&gt; tool and save it under the folder created
+earlier.&lt;/li&gt;
+  &lt;li&gt;Rename &lt;code class=&quot;highlighter-rouge&quot;&gt;wslgit.exe&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;git.exe&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Update the PATH user environment variable to include the path &lt;code class=&quot;highlighter-rouge&quot;&gt;git.exe&lt;/code&gt; under
+&lt;code class=&quot;highlighter-rouge&quot;&gt;%programfiles%\wslgit&lt;/code&gt;. If Git for Windows is also in the path make sure this precedes it.&lt;/li&gt;
+  &lt;li&gt;Create a new user environment variable &lt;code class=&quot;highlighter-rouge&quot;&gt;WSLGIT_USE_INTERACTIVE_SHELL&lt;/code&gt; and set the value to &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;At this point, you should be able to run a PowerShell or Windows CMD session and execute &lt;code class=&quot;highlighter-rouge&quot;&gt;git&lt;/code&gt;. You
+may have to restart an existing session for changes to take effect. When everything appears to be
+functional uninstall Git for Windows.&lt;/p&gt;</content><author><name></name></author><category term="git" /><summary type="html">For several years I used Git for Windows to manage repositories and it proved decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I am used to with Linux. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling that ran on Windows that interfaced with Git. What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance My day to day usage of Git in WSL I have not found a perceptible difference in performance. Below is a quick comparison of cloning a repository between the two. git clone using Git for Windows git clone using WSL Note: This includes improvements to WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&amp;lt;your_username&amp;gt; mv .gitconfig ~ mv .ssh/ ~ Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. When everything appears to be functional uninstall Git for Windows.</summary></entry><entry><title type="html">WSL Disk Performance</title><link href="/wsl/2019/11/03/wsl_disk_perf.html" rel="alternate" type="text/html" title="WSL Disk Performance" /><published>2019-11-03T00:00:00-07:00</published><updated>2019-11-03T00:00:00-07:00</updated><id>/wsl/2019/11/03/wsl_disk_perf</id><content type="html" xml:base="/wsl/2019/11/03/wsl_disk_perf.html">&lt;p&gt;The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This
 is a large reason why operations like building a virtual environment in Python or installing a package
 take noticeably longer in Windows.&lt;/p&gt;
 
@@ -184,9 +256,9 @@ applications I depend on.&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;Cross-Platform Git using WSL&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/wsl/2019/12/12/wsl_cross_plat_git.html&quot;&gt;Git for Windows using WSL&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Docker from WSL&lt;/li&gt;
   &lt;li&gt;Copy/Paste between WSL and Windows&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;and more…&lt;/p&gt;</content><author><name></name></author><category term="intro" /><summary type="html">A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk performance Cross-Platform Git using WSL Docker from WSL Copy/Paste between WSL and Windows and more…</summary></entry></feed>
+&lt;p&gt;and more…&lt;/p&gt;</content><author><name></name></author><category term="intro" /><summary type="html">A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk performance Git for Windows using WSL Docker from WSL Copy/Paste between WSL and Windows and more…</summary></entry></feed>
