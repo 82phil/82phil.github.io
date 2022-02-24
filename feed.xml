@@ -1,4 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-12-29T19:29:49-08:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">Git for Windows using WSL</title><link href="/wsl/2019/12/12/wsl_cross_plat_git.html" rel="alternate" type="text/html" title="Git for Windows using WSL" /><published>2019-12-12T00:00:00-08:00</published><updated>2019-12-12T00:00:00-08:00</updated><id>/wsl/2019/12/12/wsl_cross_plat_git</id><content type="html" xml:base="/wsl/2019/12/12/wsl_cross_plat_git.html">&lt;p&gt;For several years I used &lt;a href=&quot;https://git-scm.com/download/win&quot;&gt;Git for Windows&lt;/a&gt; to manage
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-02-23T21:09:57-08:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">WSL2 Windows 10 Disk Performance</title><link href="/wsl/2022/02/20/wsl2_disk_perf.html" rel="alternate" type="text/html" title="WSL2 Windows 10 Disk Performance" /><published>2022-02-20T00:00:00-08:00</published><updated>2022-02-20T00:00:00-08:00</updated><id>/wsl/2022/02/20/wsl2_disk_perf</id><content type="html" xml:base="/wsl/2022/02/20/wsl2_disk_perf.html">&lt;p&gt;I do a lot of projects both for Windows applications and backend web development
+that runs on Linux. While my Windows projects do not run under Linux, I enjoy
+using the command line via WSL while working on them.&lt;/p&gt;
+
+&lt;p&gt;I set up another distro using WSL2 for my backend projects, and then pondered,
+should I continue to use my WSL1 configured distro? Let’s find out!&lt;/p&gt;
+
+&lt;h1 id=&quot;measuring-performance&quot;&gt;Measuring performance&lt;/h1&gt;
+
+&lt;p&gt;Here is what I used to measure disk performance. Feel free to try it out on
+your system. Depending on your machine and which scenario you are attempting
+it can range from a few seconds to a few minutes.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;mkdir test
+cd test
+dd &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;testfile &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000 &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;500
+&lt;span class=&quot;nb&quot;&gt;time split&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; 10 &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; 10 testfile
+&lt;span class=&quot;nb&quot;&gt;time rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The above command generates 50k files by generating a 500KB file, splitting it
+into files of 10 bytes, and lastly removing all the files.&lt;/p&gt;
+
+&lt;h1 id=&quot;results&quot;&gt;Results&lt;/h1&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;Operation&lt;/th&gt;
+      &lt;th style=&quot;text-align: right&quot;&gt;WSL2 on VHD&lt;/th&gt;
+      &lt;th style=&quot;text-align: right&quot;&gt;WSL2 on NTFS&lt;/th&gt;
+      &lt;th style=&quot;text-align: right&quot;&gt;WSL1 on NTFS*&lt;/th&gt;
+      &lt;th style=&quot;text-align: right&quot;&gt;Docker (WSL2)&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;split 50k files&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;4.22s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;3m58.8s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;39.95s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;5.89s&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rm 50k files&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;1.85s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;1m58.2s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;18.71s&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;2.42s&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;* WSL1 with optimizations, see &lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your
+results will see a pronounced improvement with better hardware.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A couple of things pop out from the results. First is the stark difference between
+WSL2 using the VM drive versus using NTFS mounted drive. You can see WSL2 on NTFS gives
+the worst performance at nearly 4 minutes, fifty times slower than the same test
+on the VM drive.&lt;/p&gt;
+
+&lt;p&gt;Second, WSL1 is faster on NTFS. Even factoring out the optimizations from
+&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt; there is still a
+2-3x performance gain by sticking with WSL1 for operations on the NTFS drive.
+That explains why &lt;a href=&quot;https://docs.microsoft.com/en-us/windows/wsl/compare-versions#exceptions-for-using-wsl-1-rather-than-wsl-2&quot;&gt;Microsoft suggests using WSL1&lt;/a&gt; if you need to work with
+files in the Windows File System.&lt;/p&gt;</content><author><name></name></author><summary type="html">I do a lot of projects both for Windows applications and backend web development that runs on Linux. While my Windows projects do not run under Linux, I enjoy using the command line via WSL while working on them.</summary></entry><entry><title type="html">Git for Windows using WSL</title><link href="/wsl/2019/12/12/wsl_cross_plat_git.html" rel="alternate" type="text/html" title="Git for Windows using WSL" /><published>2019-12-12T00:00:00-08:00</published><updated>2019-12-12T00:00:00-08:00</updated><id>/wsl/2019/12/12/wsl_cross_plat_git</id><content type="html" xml:base="/wsl/2019/12/12/wsl_cross_plat_git.html">&lt;p&gt;For several years I used &lt;a href=&quot;https://git-scm.com/download/win&quot;&gt;Git for Windows&lt;/a&gt; to manage
 repositories and it was decent enough. However, I found the Unix-like environment provided by Git
 for Windows to be very different than what I was used to. I have longed for a way to use Git from
 WSL to manage my repositories and continue to support tooling dependent on Git that ran on
@@ -81,11 +152,12 @@ Git in WSL in the same repository will likely break it.&lt;/p&gt;</content><auth
 is a large reason why operations like building a virtual environment in Python or installing a package
 take noticeably longer in Windows.&lt;/p&gt;
 
-&lt;p&gt;One way around this is to run Linux under a virtual machine. Microsoft is working on
+&lt;p&gt;One way around this is to use
 &lt;a href=&quot;https://docs.microsoft.com/en-us/windows/wsl/wsl2-about&quot;&gt;WSL2&lt;/a&gt;, which is a
-different variant of WSL that provides a VM with a similar experience to the first variant of WSL
-(WSL1). Disk IO operations are only improved under drives in the VM, any shared volumes with an NTFS
-drive will result in similar or possibly worse performance than WSL1.&lt;/p&gt;
+different variant of WSL that runs under a specialized, lightweight VM. It
+provides a far more performant experience than WSL1 and alleviates other
+shortcomings of WSL1. See &lt;a href=&quot;/wsl/2022/02/20/wsl2_disk_perf.html&quot;&gt;WSL2 Disk Performance&lt;/a&gt;
+for a performance comparison between the two.&lt;/p&gt;
 
 &lt;h1 id=&quot;measuring-performance&quot;&gt;Measuring performance&lt;/h1&gt;
 
@@ -253,7 +325,7 @@ pronounced improvement with better hardware.&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Node.js 12.13 LTS used for next.js benchmarks.&lt;/p&gt;
-&lt;/blockquote&gt;</content><author><name></name></author><category term="performance" /><summary type="html">The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This is a large reason why operations like building a virtual environment in Python or installing a package take noticeably longer in Windows. One way around this is to run Linux under a virtual machine. Microsoft is working on WSL2, which is a different variant of WSL that provides a VM with a similar experience to the first variant of WSL (WSL1). Disk IO operations are only improved under drives in the VM, any shared volumes with an NTFS drive will result in similar or possibly worse performance than WSL1. Measuring performance Pull up a WSL terminal and enter the following commands. Expect them to take a minute or two to execute and take note of the times. mkdir test cd test dd if=/dev/zero of=testfile bs=1000 count=500 time split -b 10 -a 10 testfile time rm -rf * The above command generates 50k files by generating a 500KB file, splitting it into files of 10 bytes, and lastly removing all the files. Disable 8.3 Naming The 8.3 file naming convention was used in DOS and early versions of Windows. To maintain backward compatibility with programs over two decades old, Windows enumerates longer file names with the 8.3 conventions. This results in additional overhead that adds up when handling a large number of files. Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is enabled for your system drive. PS C:\WINDOWS\system32&amp;gt; fsutil.exe 8dot3name query C: The volume state is: 0 (8dot3 name creation is enabled). The registry state is: 2 (Per volume setting - the default). Based on the above settings, 8dot3 name creation is enabled on C: The enumeration can be turned off at any time and may be turned off either per NTFS volume or for all volumes. Here is how to disable the enumeration on all NTFS volumes: PS C:\WINDOWS\system32&amp;gt; fsutil.exe behavior set disable8dot3 1 The registry state is now: 1 (Disable 8dot3 name creation on all volumes). Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files in the directory created beforehand will continue to slow performance. Either re-create those files or check out Disable 8.3 Naming (and strip those short names too) on how to remove short names from the files. Update real-time protection to exclude Linux processes By default, Windows Defender will scan files being used by a process. This impacts processes that perform a lot of file operations. Some suggest to turn off real-time protection; a better way is to exclude files those processes are working with from being scanned in real-time. Issue the which command in WSL to determine where the executable location of the process lives. phil@small-kine:/mnt/c/dev/dd_test$ which split /usr/bin/split phil@small-kine:/mnt/c/dev/dd_test$ which rm /bin/rm Next, update the real-time protection to exclude that process or all processes in that folder. Shown below is how to exclude processes located in the /usr/bin and /bin directories. The following assumes that there is only one distribution installed for WSL, Ubuntu. It is possible to have multiple distributions (Alpine, Debian, etc.) and multiple versions of them. For those situations, change the Where-Object query in the first command below to pick the correct WSL package. Open Windows PowerShell as Administrator and enter the following commands. PS C:\WINDOWS\system32&amp;gt; $wsl_target = [IO.Path]::Combine($env:LOCALAPPDATA, &quot;Packages&quot;, (Get-AppxPackage | Where-Object -Property &quot;Name&quot; -Like &quot;*Ubuntu*&quot;).PackageFamilyName, &quot;LocalState&quot;, &quot;rootfs&quot;) PS C:\WINDOWS\system32&amp;gt; Test-Path $wsl_target True PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/usr/bin/*&quot;) PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/bin/*&quot;) Here is an example for excluding Node.js processes under NVM. PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/home/your_home_dir/.nvm/versions/node/*&quot;) While WSL processes are run from directories under %localappdata%\Packages\..., they are not meant to be used for file access, use \\wsl$\ instead. Check out Defender Anti-Virus Configure Process Exclusions for further configuration options for Windows Defender. Performance Using the file I/O example provided earlier and running a benchmark you can see a marked improvement in performance using the proceeding techniques. That said, there still is dramatic difference between WSL and Linux in raw performance. Operation WSL WSL with changes Docker (VM) split 50k files 2m3.72s 39.95s 4.95s rm 50k files 27.15s 18.71s 2.04s Taking a look at some workflows and how their performance varies between systems those differences are not as substantial as before, but still noticeable. Operation WSL WSL with changes Docker (VM) Python 3.6.9 venv creation 12.63s 5.86s 3.17s npm create next-app 2m33.90s 1m13.31s 24.95s next.js project build 45.91s 21.01s 20.83s Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a pronounced improvement with better hardware. Node.js 12.13 LTS used for next.js benchmarks.</summary></entry><entry><title type="html">Windows Subsystem for Linux (WSL)</title><link href="/wsl/2019/11/02/wsl_intro.html" rel="alternate" type="text/html" title="Windows Subsystem for Linux (WSL)" /><published>2019-11-02T00:00:00-07:00</published><updated>2019-11-02T00:00:00-07:00</updated><id>/wsl/2019/11/02/wsl_intro</id><content type="html" xml:base="/wsl/2019/11/02/wsl_intro.html">&lt;p&gt;A large portion of my job deals with supporting Windows desktop applications
+&lt;/blockquote&gt;</content><author><name></name></author><category term="performance" /><summary type="html">The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This is a large reason why operations like building a virtual environment in Python or installing a package take noticeably longer in Windows. One way around this is to use WSL2, which is a different variant of WSL that runs under a specialized, lightweight VM. It provides a far more performant experience than WSL1 and alleviates other shortcomings of WSL1. See WSL2 Disk Performance for a performance comparison between the two. Measuring performance Pull up a WSL terminal and enter the following commands. Expect them to take a minute or two to execute and take note of the times. mkdir test cd test dd if=/dev/zero of=testfile bs=1000 count=500 time split -b 10 -a 10 testfile time rm -rf * The above command generates 50k files by generating a 500KB file, splitting it into files of 10 bytes, and lastly removing all the files. Disable 8.3 Naming The 8.3 file naming convention was used in DOS and early versions of Windows. To maintain backward compatibility with programs over two decades old, Windows enumerates longer file names with the 8.3 conventions. This results in additional overhead that adds up when handling a large number of files. Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is enabled for your system drive. PS C:\WINDOWS\system32&amp;gt; fsutil.exe 8dot3name query C: The volume state is: 0 (8dot3 name creation is enabled). The registry state is: 2 (Per volume setting - the default). Based on the above settings, 8dot3 name creation is enabled on C: The enumeration can be turned off at any time and may be turned off either per NTFS volume or for all volumes. Here is how to disable the enumeration on all NTFS volumes: PS C:\WINDOWS\system32&amp;gt; fsutil.exe behavior set disable8dot3 1 The registry state is now: 1 (Disable 8dot3 name creation on all volumes). Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files in the directory created beforehand will continue to slow performance. Either re-create those files or check out Disable 8.3 Naming (and strip those short names too) on how to remove short names from the files. Update real-time protection to exclude Linux processes By default, Windows Defender will scan files being used by a process. This impacts processes that perform a lot of file operations. Some suggest to turn off real-time protection; a better way is to exclude files those processes are working with from being scanned in real-time. Issue the which command in WSL to determine where the executable location of the process lives. phil@small-kine:/mnt/c/dev/dd_test$ which split /usr/bin/split phil@small-kine:/mnt/c/dev/dd_test$ which rm /bin/rm Next, update the real-time protection to exclude that process or all processes in that folder. Shown below is how to exclude processes located in the /usr/bin and /bin directories. The following assumes that there is only one distribution installed for WSL, Ubuntu. It is possible to have multiple distributions (Alpine, Debian, etc.) and multiple versions of them. For those situations, change the Where-Object query in the first command below to pick the correct WSL package. Open Windows PowerShell as Administrator and enter the following commands. PS C:\WINDOWS\system32&amp;gt; $wsl_target = [IO.Path]::Combine($env:LOCALAPPDATA, &quot;Packages&quot;, (Get-AppxPackage | Where-Object -Property &quot;Name&quot; -Like &quot;*Ubuntu*&quot;).PackageFamilyName, &quot;LocalState&quot;, &quot;rootfs&quot;) PS C:\WINDOWS\system32&amp;gt; Test-Path $wsl_target True PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/usr/bin/*&quot;) PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/bin/*&quot;) Here is an example for excluding Node.js processes under NVM. PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/home/your_home_dir/.nvm/versions/node/*&quot;) While WSL processes are run from directories under %localappdata%\Packages\..., they are not meant to be used for file access, use \\wsl$\ instead. Check out Defender Anti-Virus Configure Process Exclusions for further configuration options for Windows Defender. Performance Using the file I/O example provided earlier and running a benchmark you can see a marked improvement in performance using the proceeding techniques. That said, there still is dramatic difference between WSL and Linux in raw performance. Operation WSL WSL with changes Docker (VM) split 50k files 2m3.72s 39.95s 4.95s rm 50k files 27.15s 18.71s 2.04s Taking a look at some workflows and how their performance varies between systems those differences are not as substantial as before, but still noticeable. Operation WSL WSL with changes Docker (VM) Python 3.6.9 venv creation 12.63s 5.86s 3.17s npm create next-app 2m33.90s 1m13.31s 24.95s next.js project build 45.91s 21.01s 20.83s Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a pronounced improvement with better hardware. Node.js 12.13 LTS used for next.js benchmarks.</summary></entry><entry><title type="html">Windows Subsystem for Linux (WSL)</title><link href="/wsl/2019/11/02/wsl_intro.html" rel="alternate" type="text/html" title="Windows Subsystem for Linux (WSL)" /><published>2019-11-02T00:00:00-07:00</published><updated>2019-11-02T00:00:00-07:00</updated><id>/wsl/2019/11/02/wsl_intro</id><content type="html" xml:base="/wsl/2019/11/02/wsl_intro.html">&lt;p&gt;A large portion of my job deals with supporting Windows desktop applications
 along with working with Linux on backend and embedded platforms.&lt;/p&gt;
 
 &lt;p&gt;Using WSL allows me to pop into a project from the command line, edit a line
@@ -262,10 +334,11 @@ like seconds. Yet it keeps the familiar environment and supports business
 applications I depend on.&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk Performance&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;/wsl/2019/12/12/wsl_cross_plat_git.html&quot;&gt;Git for Windows using WSL&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/wsl/2022/02/20/wsl2_disk_perf.html&quot;&gt;WSL2 Disk Performance&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Docker from WSL&lt;/li&gt;
   &lt;li&gt;Copy/Paste between WSL and Windows&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;and more…&lt;/p&gt;</content><author><name></name></author><category term="intro" /><summary type="html">A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk performance Git for Windows using WSL Docker from WSL Copy/Paste between WSL and Windows and more…</summary></entry></feed>
+&lt;p&gt;and more…&lt;/p&gt;</content><author><name></name></author><category term="intro" /><summary type="html">A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk Performance Git for Windows using WSL WSL2 Disk Performance Docker from WSL Copy/Paste between WSL and Windows and more…</summary></entry></feed>
