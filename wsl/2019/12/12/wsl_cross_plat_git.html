@@ -2,9 +2,9 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>Git for Windows using WSL | Notes, Thoughts, and Adventures</title>
-<meta name="generator" content="Jekyll v4.0.0" />
+<meta name="generator" content="Jekyll v4.2.2" />
 <meta property="og:title" content="Git for Windows using WSL" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="For several years I used Git for Windows to manage repositories and it was decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I was used to. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling dependent on Git that ran on Windows What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance In my day to day activities running Git from WSL, I have not found performance to be different between the two. Below is a quick comparison of cloning a repository. git clone using Git for Windows git clone using WSL Note: WSL had improvements from WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile (%USERPROFILE%) directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&lt;your_username&gt; mv .gitconfig ~ mv .ssh/ ~ The private SSH key file permissions need to be updated, follow the step below for your keys. chmod 600 ~/.ssh/&lt;your_key&gt; Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using Git in WSL in the same repository will likely break it." />
@@ -14,8 +14,10 @@
 <meta property="og:site_name" content="Notes, Thoughts, and Adventures" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2019-12-12T00:00:00-08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Git for Windows using WSL" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Git for Windows using WSL","dateModified":"2019-12-12T00:00:00-08:00","datePublished":"2019-12-12T00:00:00-08:00","url":"/wsl/2019/12/12/wsl_cross_plat_git.html","mainEntityOfPage":{"@type":"WebPage","@id":"/wsl/2019/12/12/wsl_cross_plat_git.html"},"description":"For several years I used Git for Windows to manage repositories and it was decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I was used to. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling dependent on Git that ran on Windows What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance In my day to day activities running Git from WSL, I have not found performance to be different between the two. Below is a quick comparison of cloning a repository. git clone using Git for Windows git clone using WSL Note: WSL had improvements from WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile (%USERPROFILE%) directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&lt;your_username&gt; mv .gitconfig ~ mv .ssh/ ~ The private SSH key file permissions need to be updated, follow the step below for your keys. chmod 600 ~/.ssh/&lt;your_key&gt; Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using Git in WSL in the same repository will likely break it.","@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2019-12-12T00:00:00-08:00","datePublished":"2019-12-12T00:00:00-08:00","description":"For several years I used Git for Windows to manage repositories and it was decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I was used to. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling dependent on Git that ran on Windows What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance In my day to day activities running Git from WSL, I have not found performance to be different between the two. Below is a quick comparison of cloning a repository. git clone using Git for Windows git clone using WSL Note: WSL had improvements from WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile (%USERPROFILE%) directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&lt;your_username&gt; mv .gitconfig ~ mv .ssh/ ~ The private SSH key file permissions need to be updated, follow the step below for your keys. chmod 600 ~/.ssh/&lt;your_key&gt; Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using Git in WSL in the same repository will likely break it.","headline":"Git for Windows using WSL","mainEntityOfPage":{"@type":"WebPage","@id":"/wsl/2019/12/12/wsl_cross_plat_git.html"},"url":"/wsl/2019/12/12/wsl_cross_plat_git.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Notes, Thoughts, and Adventures" /></head>
 <body><header class="site-header" role="banner">
@@ -62,10 +64,10 @@ to function in WSL.</p>
 <p>In my day to day activities running Git from WSL, I have not found performance to be different
 between the two. Below is a quick comparison of cloning a repository.</p>
 
-<p><code class="highlighter-rouge">git clone</code> using Git for Windows
+<p><code class="language-plaintext highlighter-rouge">git clone</code> using Git for Windows
 <img src="/assets/git_clone_git_on_win.png" alt="git clone - Git for Windows" title="git clone using Git for Windows" /></p>
 
-<p><code class="highlighter-rouge">git clone</code> using WSL
+<p><code class="language-plaintext highlighter-rouge">git clone</code> using WSL
 <img src="/assets/git_clone_wsl.png" alt="git clone - WSL" title="git clone using WSL" /></p>
 
 <blockquote>
@@ -74,31 +76,31 @@ between the two. Below is a quick comparison of cloning a repository.</p>
 
 <h1 id="moving-the-git-configuration-to-wsl">Moving the Git configuration to WSL</h1>
 
-<p>Git for Windows by default uses your user profile (<code class="highlighter-rouge">%USERPROFILE%</code>) directory to store
+<p>Git for Windows by default uses your user profile (<code class="language-plaintext highlighter-rouge">%USERPROFILE%</code>) directory to store
 configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd /mnt/c/Users/&lt;your_username&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd /mnt/c/Users/&lt;your_username&gt;
 mv .gitconfig ~
 mv .ssh/ ~
 </code></pre></div></div>
 
 <p>The private SSH key file permissions need to be updated, follow the step below for your keys.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod 600 ~/.ssh/&lt;your_key&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod 600 ~/.ssh/&lt;your_key&gt;
 </code></pre></div></div>
 
 <h1 id="line-endings">Line Endings</h1>
 
 <p>Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause
-some head-scratching during code reviews. Setting autocrlf to <code class="highlighter-rouge">input</code> will checkout with line
+some head-scratching during code reviews. Setting autocrlf to <code class="language-plaintext highlighter-rouge">input</code> will checkout with line
 endings left as-is, and will convert them to LF when committing.</p>
 
 <p>Enter the following in your WSL console.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git config --global core.autocrlf input
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git config --global core.autocrlf input
 </code></pre></div></div>
 
-<p>It is recommended that repositories contain <code class="highlighter-rouge">.gitattrbutes</code>; a configuration file that defines the
+<p>It is recommended that repositories contain <code class="language-plaintext highlighter-rouge">.gitattrbutes</code>; a configuration file that defines the
 desired line endings that will override the user settings. See 
 <a href="https://help.github.com/en/github/using-git/configuring-git-to-handle-line-endings">Configuring Git to Handle Line Endings</a>
 for further information on configuration Git Attributes.</p>
@@ -111,16 +113,16 @@ Luckily there is a tool called <a href="https://github.com/andy-5/wslgit">wslgit
 to WSL git.</p>
 
 <ol>
-  <li>Create a directory under %programfiles% called <code class="highlighter-rouge">wslgit</code>.</li>
+  <li>Create a directory under %programfiles% called <code class="language-plaintext highlighter-rouge">wslgit</code>.</li>
   <li>Download the <a href="https://github.com/andy-5/wslgit">wslgit</a> tool and save it under the folder created
 earlier.</li>
-  <li>Rename <code class="highlighter-rouge">wslgit.exe</code> to <code class="highlighter-rouge">git.exe</code></li>
-  <li>Update the PATH user environment variable to include the path <code class="highlighter-rouge">git.exe</code> under
-<code class="highlighter-rouge">%programfiles%\wslgit</code>. If Git for Windows is also in the path make sure this precedes it.</li>
-  <li>Create a new user environment variable <code class="highlighter-rouge">WSLGIT_USE_INTERACTIVE_SHELL</code> and set the value to <code class="highlighter-rouge">0</code>.</li>
+  <li>Rename <code class="language-plaintext highlighter-rouge">wslgit.exe</code> to <code class="language-plaintext highlighter-rouge">git.exe</code></li>
+  <li>Update the PATH user environment variable to include the path <code class="language-plaintext highlighter-rouge">git.exe</code> under
+<code class="language-plaintext highlighter-rouge">%programfiles%\wslgit</code>. If Git for Windows is also in the path make sure this precedes it.</li>
+  <li>Create a new user environment variable <code class="language-plaintext highlighter-rouge">WSLGIT_USE_INTERACTIVE_SHELL</code> and set the value to <code class="language-plaintext highlighter-rouge">0</code>.</li>
 </ol>
 
-<p>At this point, you should be able to run a PowerShell or Windows CMD session and execute <code class="highlighter-rouge">git</code>. You
+<p>At this point, you should be able to run a PowerShell or Windows CMD session and execute <code class="language-plaintext highlighter-rouge">git</code>. You
 may have to restart an existing session for changes to take effect.</p>
 
 <p>Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using

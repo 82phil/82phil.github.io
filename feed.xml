@@ -1,344 +1,578 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-02-23T21:09:57-08:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">WSL2 Windows 10 Disk Performance</title><link href="/wsl/2022/02/20/wsl2_disk_perf.html" rel="alternate" type="text/html" title="WSL2 Windows 10 Disk Performance" /><published>2022-02-20T00:00:00-08:00</published><updated>2022-02-20T00:00:00-08:00</updated><id>/wsl/2022/02/20/wsl2_disk_perf</id><content type="html" xml:base="/wsl/2022/02/20/wsl2_disk_perf.html">&lt;p&gt;I do a lot of projects both for Windows applications and backend web development
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-09-29T22:53:22-07:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">Docker for Windows</title><link href="/wsl/2022/09/29/docker_wsl.html" rel="alternate" type="text/html" title="Docker for Windows" /><published>2022-09-29T00:00:00-07:00</published><updated>2022-09-29T00:00:00-07:00</updated><id>/wsl/2022/09/29/docker_wsl</id><content type="html" xml:base="/wsl/2022/09/29/docker_wsl.html"><![CDATA[<p>There are two options to support running Linux containers on Windows; Docker
+Desktop and Docker under WSL2. Docker Desktop
+<a href="https://www.docker.com/pricing/faq/">may require a subscription for business use</a>.
+However, it is easy to set up and run. In addition, it provides a simple way
+to work on Windows Containers. Here is an overview of the two:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Category</th>
+      <th style="text-align: right">Docker Desktop</th>
+      <th style="text-align: right">WSL2 Docker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Resources</td>
+      <td style="text-align: right">Light</td>
+      <td style="text-align: right">Very Light</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Availability</td>
+      <td style="text-align: right">Global</td>
+      <td style="text-align: right">Distro</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Ease of Use</td>
+      <td style="text-align: right">Easy</td>
+      <td style="text-align: right">Moderate</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">License</td>
+      <td style="text-align: right"><a href="https://www.docker.com/pricing/faq/">Business - $</a></td>
+      <td style="text-align: right">Free</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Windows Containers</td>
+      <td style="text-align: right">Yes</td>
+      <td style="text-align: right">No</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="resources">Resources</h3>
+
+<p>Both the Docker Desktop and the WSL2 Docker are light on resources. Take,
+for example, my oldest machine, the 1st generation Surface Pro. With a humble
+4GB of RAM, I can build and run containers, have an instance of WSL2 running for
+development, VS Code, and still squeeze in several browser tabs. That said,
+WSL2 Docker gets a slight lead here, as there is no desktop client or additional
+WSL2 distros that need to run.</p>
+
+<p>The startup time for Docker Desktop is a lot longer than WSL2 Docker. It took
+over a minute for Docker Desktop to start. Half of that time was bringing up the
+application, and the other half was waiting for the docker icon in the system
+tray to indicate it was ready. Compare that to WSL2 Docker, which started in
+less than 5 seconds. That time also includes bringing up the WSL2 distro as
+well.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Engine</th>
+      <th style="text-align: right">Startup Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Docker Desktop</td>
+      <td style="text-align: right">68s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">WSL2 Docker</td>
+      <td style="text-align: right">3.54s</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Once things are up and running, performance becomes similar between the two.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Operation</th>
+      <th style="text-align: right">Docker Desktop</th>
+      <th style="text-align: right">WSL2 Docker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">split 50k files</td>
+      <td style="text-align: right">6.87s</td>
+      <td style="text-align: right">4.07s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">rm 50k files</td>
+      <td style="text-align: right">2.66s</td>
+      <td style="text-align: right">2.05s</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your
+results will see improvement with better hardware.</p>
+</blockquote>
+
+<h3 id="availability">Availability</h3>
+
+<p>When Docker Desktop is installed, the client is available in the Windows
+Console, under both the Command Prompt and PowerShell. It can also be added to
+any WSL2 distro with a few clicks in the desktop app. There is no need to
+install the client for that distro; Docker will stub out everything in it with a
+single click.</p>
+
+<p><img src="/assets/docker_desktop_wsl_integration.png" alt="Docker Desktop WSL Integration" title="Docker Desktop WSL Integration" /></p>
+
+<p>The WSL2 Docker will, by default, use <code class="language-plaintext highlighter-rouge">/var/run/docker.sock</code> in the distro. Only the
+client on the same distro can use the Docker daemon.</p>
+
+<h3 id="ease-of-use">Ease of Use</h3>
+
+<p>Docker provides a desktop application to configure the Docker daemon and enable WSL
+integration with other distros. In addition, it also gives a friendly visual interface
+for managing images, containers, and volumes.</p>
+
+<p>This is in contrast to WSL2 Docker, where you manage it as you would in Linux, via
+the JSON configuration file <code class="language-plaintext highlighter-rouge">/etc/docker/daemon.json</code> and using the client
+command-line interface (CLI) to handle container images, running containers, and
+so forth.</p>
+
+<h3 id="license">License</h3>
+
+<p>Docker Desktop is free for businesses with less than 250 employees and $10
+million in annual revenue at the time of this writing. Otherwise, it is a
+minimum of $5 per month per user. Docker in WSL2 uses the open-source components
+of Docker, such as containerd, and is free to use.</p>
+
+<h3 id="windows-containers">Windows Containers</h3>
+
+<p>For Docker Desktop, right-click the application in the system tray and
+select <code class="language-plaintext highlighter-rouge">Switch to Windows Containers</code>. WSL2 Docker will only run Linux containers.</p>
+
+<h2 id="docker-desktop">Docker Desktop</h2>
+
+<p>Installing Docker Desktop is a piece of cake. They even provide a tutorial
+once the application is running to guide you through running a container. See
+https://docs.docker.com/desktop/windows/install/</p>
+
+<p>Historically, Docker Desktop used to run a dedicated VM. Now, by default, it
+runs on top of WSL2. Technically, it is still a VM but is highly optimized for
+resource conservation. I evaluated it using a 1st gen Surface Pro with just 4GB
+of RAM while having VS Code, a dozen tabs, and Spotify playing in the
+background. The older dedicated VM implementation would require at decent chunk
+of free memory to start it successfully, so the only way to launch Docker on 4GB
+of RAM was after a reboot.</p>
+
+<p>Docker Desktop installs two distros in WSL. One is <code class="language-plaintext highlighter-rouge">docker-desktop</code>, a
+lightweight distro based on BusyBox that runs the Docker daemon and a host of
+other processes. And <code class="language-plaintext highlighter-rouge">docker-desktop-data</code>, which contains what appears to be
+cached build layers from built containers.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wsl.exe <span class="nt">-l</span> <span class="nt">-v</span>
+  NAME                   STATE           VERSION
+<span class="k">*</span> Ubuntu                 Running         2
+  docker-desktop-data    Running         2
+  docker-desktop         Running         2
+</code></pre></div></div>
+
+<h3 id="cross-distro-support">Cross Distro Support</h3>
+
+<p>When a WSL2 distro is integrated with Docker Desktop, it will run a process
+called <code class="language-plaintext highlighter-rouge">docker-desktop-proxy</code></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ps aux | <span class="nb">grep </span>docker
+root 5632  /wsl/docker-desktop/docker-desktop-proxy <span class="nt">--distro-name</span> Ubuntu <span class="nt">--docker-desktop-root</span> /wsl/docker-desktop
+</code></pre></div></div>
+
+<p>It will also set up <code class="language-plaintext highlighter-rouge">docker.sock</code> under <code class="language-plaintext highlighter-rouge">/var/run</code> and provide symbolic
+links under <code class="language-plaintext highlighter-rouge">/usr/bin</code> programs like the docker client and docker-compose.</p>
+
+<p>Lastly, it mounts directories between the Docker distros and your chosen distros,
+under <code class="language-plaintext highlighter-rouge">/wsl</code>. This is, for now, an undocumented feature of WSL that Docker
+Desktop utilizes. See WSL GitHub issues <a href="https://github.com/microsoft/WSL/issues/4577">#4577</a> and
+<a href="https://github.com/microsoft/WSL/issues/5177">#5177</a> for further information.</p>
+
+<p>This enables Docker Desktop to work across distros, using the same Docker daemon.</p>
+
+<h2 id="docker-on-wsl2">Docker on WSL2</h2>
+
+<p>Installing Docker in WSL2 is the same as it is under Linux. Update the
+package tool to use Docker’s package repository and install all the needed
+components that makeup Docker.</p>
+
+<p><a href="https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository">https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository</a></p>
+
+<p>In addition, you may want to add your user account to the docker group.</p>
+
+<p><a href="https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user">https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user</a></p>
+
+<p>With that, you should be all set with Docker in WSL2.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>service docker start
+<span class="nv">$ </span>docker run hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+...
+</code></pre></div></div>
+
+<h2 id="starting-docker-automatically">Starting Docker automatically</h2>
+
+<p>If you are on Windows 11, you may be able to support <a href="https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/">systemd for WSL2</a>.
+You can use the same configuration as Linux to have
+<a href="https://docs.docker.com/engine/install/linux-postinstall/#configure-docker-to-start-on-boot">Docker Start on boot</a>.</p>
+
+<p>If <code class="language-plaintext highlighter-rouge">systemd</code> is not supported on your system, there is a quick way to have Docker start
+when you log in to Windows.</p>
+
+<p>First, get the distro name that you installed Docker on.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wsl.exe <span class="nt">-l</span> <span class="nt">-v</span>
+  NAME      STATE           VERSION
+<span class="k">*</span> Ubuntu    Running         2
+</code></pre></div></div>
+
+<p>In my case, the distro name is <code class="language-plaintext highlighter-rouge">Ubuntu</code>. Open the Windows Run Dialog (WIN + R)
+and enter <code class="language-plaintext highlighter-rouge">shell:startup</code>. The file explorer will open the startup folder for
+your user account. Create a batch file such as <code class="language-plaintext highlighter-rouge">wsl_boot_script.bat</code> and add the
+following to the script:</p>
+
+<div class="language-batch highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">wsl</span> <span class="na">-d </span><span class="kd">Ubuntu</span> <span class="na">-u </span><span class="kd">root</span> <span class="na">-e </span><span class="kd">sudo</span> <span class="kd">service</span> <span class="kd">docker</span> <span class="nb">start</span>
+</code></pre></div></div>
+
+<p>And that’s it! Next time you log in to your Windows account, the script will start Docker.</p>]]></content><author><name></name></author><category term="wsl" /><category term="docker" /><summary type="html"><![CDATA[There are two options to support running Linux containers on Windows; Docker Desktop and Docker under WSL2. Docker Desktop may require a subscription for business use. However, it is easy to set up and run. In addition, it provides a simple way to work on Windows Containers. Here is an overview of the two:]]></summary></entry><entry><title type="html">WSL2 Windows 10 Disk Performance</title><link href="/wsl/2022/02/20/wsl2_disk_perf.html" rel="alternate" type="text/html" title="WSL2 Windows 10 Disk Performance" /><published>2022-02-20T00:00:00-08:00</published><updated>2022-02-20T00:00:00-08:00</updated><id>/wsl/2022/02/20/wsl2_disk_perf</id><content type="html" xml:base="/wsl/2022/02/20/wsl2_disk_perf.html"><![CDATA[<p>I do a lot of projects both for Windows applications and backend web development
 that runs on Linux. While my Windows projects do not run under Linux, I enjoy
-using the command line via WSL while working on them.&lt;/p&gt;
+using the command line via WSL while working on them.</p>
 
-&lt;p&gt;I set up another distro using WSL2 for my backend projects, and then pondered,
-should I continue to use my WSL1 configured distro? Let’s find out!&lt;/p&gt;
+<p>I set up another distro using WSL2 for my backend projects, and then pondered,
+should I continue to use my WSL1 configured distro? Let’s find out!</p>
 
-&lt;h1 id=&quot;measuring-performance&quot;&gt;Measuring performance&lt;/h1&gt;
+<h1 id="measuring-performance">Measuring performance</h1>
 
-&lt;p&gt;Here is what I used to measure disk performance. Feel free to try it out on
+<p>Here is what I used to measure disk performance. Feel free to try it out on
 your system. Depending on your machine and which scenario you are attempting
-it can range from a few seconds to a few minutes.&lt;/p&gt;
+it can range from a few seconds to a few minutes.</p>
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;mkdir test
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir test
 cd test
-dd &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;testfile &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000 &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;500
-&lt;span class=&quot;nb&quot;&gt;time split&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; 10 &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; 10 testfile
-&lt;span class=&quot;nb&quot;&gt;time rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+dd </span><span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>testfile <span class="nv">bs</span><span class="o">=</span>1000 <span class="nv">count</span><span class="o">=</span>500
+<span class="nb">time split</span> <span class="nt">-b</span> 10 <span class="nt">-a</span> 10 testfile
+<span class="nb">time rm</span> <span class="nt">-rf</span> <span class="k">*</span>
+</code></pre></div></div>
 
-&lt;p&gt;The above command generates 50k files by generating a 500KB file, splitting it
-into files of 10 bytes, and lastly removing all the files.&lt;/p&gt;
+<p>The above command generates 50k files by generating a 500KB file, splitting it
+into files of 10 bytes, and lastly removing all the files.</p>
 
-&lt;h1 id=&quot;results&quot;&gt;Results&lt;/h1&gt;
+<h1 id="results">Results</h1>
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;Operation&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL2 on VHD&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL2 on NTFS&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL1 on NTFS*&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;Docker (WSL2)&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;split 50k files&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;4.22s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;3m58.8s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;39.95s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;5.89s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rm 50k files&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;1.85s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;1m58.2s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;18.71s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;2.42s&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Operation</th>
+      <th style="text-align: right">WSL2 on VHD</th>
+      <th style="text-align: right">WSL2 on NTFS</th>
+      <th style="text-align: right">WSL1 on NTFS*</th>
+      <th style="text-align: right">Docker (WSL2)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">split 50k files</td>
+      <td style="text-align: right">4.22s</td>
+      <td style="text-align: right">3m58.8s</td>
+      <td style="text-align: right">39.95s</td>
+      <td style="text-align: right">5.89s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">rm 50k files</td>
+      <td style="text-align: right">1.85s</td>
+      <td style="text-align: right">1m58.2s</td>
+      <td style="text-align: right">18.71s</td>
+      <td style="text-align: right">2.42s</td>
+    </tr>
+  </tbody>
+</table>
 
-&lt;blockquote&gt;
-  &lt;p&gt;* WSL1 with optimizations, see &lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+<blockquote>
+  <p>* WSL1 with optimizations, see <a href="/wsl/2019/11/03/wsl_disk_perf.html">WSL Disk performance</a></p>
+</blockquote>
 
-&lt;blockquote&gt;
-  &lt;p&gt;Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your
-results will see a pronounced improvement with better hardware.&lt;/p&gt;
-&lt;/blockquote&gt;
+<blockquote>
+  <p>Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your
+results will see a pronounced improvement with better hardware.</p>
+</blockquote>
 
-&lt;p&gt;A couple of things pop out from the results. First is the stark difference between
+<p>A couple of things pop out from the results. First is the stark difference between
 WSL2 using the VM drive versus using NTFS mounted drive. You can see WSL2 on NTFS gives
 the worst performance at nearly 4 minutes, fifty times slower than the same test
-on the VM drive.&lt;/p&gt;
+on the VM drive.</p>
 
-&lt;p&gt;Second, WSL1 is faster on NTFS. Even factoring out the optimizations from
-&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt; there is still a
+<p>Second, WSL1 is faster on NTFS. Even factoring out the optimizations from
+<a href="/wsl/2019/11/03/wsl_disk_perf.html">WSL Disk performance</a> there is still a
 2-3x performance gain by sticking with WSL1 for operations on the NTFS drive.
-That explains why &lt;a href=&quot;https://docs.microsoft.com/en-us/windows/wsl/compare-versions#exceptions-for-using-wsl-1-rather-than-wsl-2&quot;&gt;Microsoft suggests using WSL1&lt;/a&gt; if you need to work with
-files in the Windows File System.&lt;/p&gt;</content><author><name></name></author><summary type="html">I do a lot of projects both for Windows applications and backend web development that runs on Linux. While my Windows projects do not run under Linux, I enjoy using the command line via WSL while working on them.</summary></entry><entry><title type="html">Git for Windows using WSL</title><link href="/wsl/2019/12/12/wsl_cross_plat_git.html" rel="alternate" type="text/html" title="Git for Windows using WSL" /><published>2019-12-12T00:00:00-08:00</published><updated>2019-12-12T00:00:00-08:00</updated><id>/wsl/2019/12/12/wsl_cross_plat_git</id><content type="html" xml:base="/wsl/2019/12/12/wsl_cross_plat_git.html">&lt;p&gt;For several years I used &lt;a href=&quot;https://git-scm.com/download/win&quot;&gt;Git for Windows&lt;/a&gt; to manage
+That explains why <a href="https://docs.microsoft.com/en-us/windows/wsl/compare-versions#exceptions-for-using-wsl-1-rather-than-wsl-2">Microsoft suggests using WSL1</a> if you need to work with
+files in the Windows File System.</p>]]></content><author><name></name></author><category term="wsl" /><summary type="html"><![CDATA[I do a lot of projects both for Windows applications and backend web development that runs on Linux. While my Windows projects do not run under Linux, I enjoy using the command line via WSL while working on them.]]></summary></entry><entry><title type="html">Git for Windows using WSL</title><link href="/wsl/2019/12/12/wsl_cross_plat_git.html" rel="alternate" type="text/html" title="Git for Windows using WSL" /><published>2019-12-12T00:00:00-08:00</published><updated>2019-12-12T00:00:00-08:00</updated><id>/wsl/2019/12/12/wsl_cross_plat_git</id><content type="html" xml:base="/wsl/2019/12/12/wsl_cross_plat_git.html"><![CDATA[<p>For several years I used <a href="https://git-scm.com/download/win">Git for Windows</a> to manage
 repositories and it was decent enough. However, I found the Unix-like environment provided by Git
 for Windows to be very different than what I was used to. I have longed for a way to use Git from
 WSL to manage my repositories and continue to support tooling dependent on Git that ran on
-Windows&lt;/p&gt;
+Windows</p>
 
-&lt;h1 id=&quot;whats-the-catch&quot;&gt;What’s the catch?&lt;/h1&gt;
+<h1 id="whats-the-catch">What’s the catch?</h1>
 
-&lt;p&gt;This assumes that you use SSH keys for authentication. If you use passphrases on your keys then
+<p>This assumes that you use SSH keys for authentication. If you use passphrases on your keys then
 an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround
-to function in WSL.&lt;/p&gt;
+to function in WSL.</p>
 
-&lt;h2 id=&quot;performance&quot;&gt;Performance&lt;/h2&gt;
+<h2 id="performance">Performance</h2>
 
-&lt;p&gt;In my day to day activities running Git from WSL, I have not found performance to be different
-between the two. Below is a quick comparison of cloning a repository.&lt;/p&gt;
+<p>In my day to day activities running Git from WSL, I have not found performance to be different
+between the two. Below is a quick comparison of cloning a repository.</p>
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone&lt;/code&gt; using Git for Windows
-&lt;img src=&quot;/assets/git_clone_git_on_win.png&quot; alt=&quot;git clone - Git for Windows&quot; title=&quot;git clone using Git for Windows&quot; /&gt;&lt;/p&gt;
+<p><code class="language-plaintext highlighter-rouge">git clone</code> using Git for Windows
+<img src="/assets/git_clone_git_on_win.png" alt="git clone - Git for Windows" title="git clone using Git for Windows" /></p>
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone&lt;/code&gt; using WSL
-&lt;img src=&quot;/assets/git_clone_wsl.png&quot; alt=&quot;git clone - WSL&quot; title=&quot;git clone using WSL&quot; /&gt;&lt;/p&gt;
+<p><code class="language-plaintext highlighter-rouge">git clone</code> using WSL
+<img src="/assets/git_clone_wsl.png" alt="git clone - WSL" title="git clone using WSL" /></p>
 
-&lt;blockquote&gt;
-  &lt;p&gt;Note: WSL had improvements from &lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk performance&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
+<blockquote>
+  <p>Note: WSL had improvements from <a href="/wsl/2019/11/03/wsl_disk_perf.html">WSL Disk performance</a></p>
+</blockquote>
 
-&lt;h1 id=&quot;moving-the-git-configuration-to-wsl&quot;&gt;Moving the Git configuration to WSL&lt;/h1&gt;
+<h1 id="moving-the-git-configuration-to-wsl">Moving the Git configuration to WSL</h1>
 
-&lt;p&gt;Git for Windows by default uses your user profile (&lt;code class=&quot;highlighter-rouge&quot;&gt;%USERPROFILE%&lt;/code&gt;) directory to store
-configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL.&lt;/p&gt;
+<p>Git for Windows by default uses your user profile (<code class="language-plaintext highlighter-rouge">%USERPROFILE%</code>) directory to store
+configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL.</p>
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cd /mnt/c/Users/&amp;lt;your_username&amp;gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd /mnt/c/Users/&lt;your_username&gt;
 mv .gitconfig ~
 mv .ssh/ ~
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</code></pre></div></div>
 
-&lt;p&gt;The private SSH key file permissions need to be updated, follow the step below for your keys.&lt;/p&gt;
+<p>The private SSH key file permissions need to be updated, follow the step below for your keys.</p>
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;chmod 600 ~/.ssh/&amp;lt;your_key&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod 600 ~/.ssh/&lt;your_key&gt;
+</code></pre></div></div>
 
-&lt;h1 id=&quot;line-endings&quot;&gt;Line Endings&lt;/h1&gt;
+<h1 id="line-endings">Line Endings</h1>
 
-&lt;p&gt;Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause
-some head-scratching during code reviews. Setting autocrlf to &lt;code class=&quot;highlighter-rouge&quot;&gt;input&lt;/code&gt; will checkout with line
-endings left as-is, and will convert them to LF when committing.&lt;/p&gt;
+<p>Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause
+some head-scratching during code reviews. Setting autocrlf to <code class="language-plaintext highlighter-rouge">input</code> will checkout with line
+endings left as-is, and will convert them to LF when committing.</p>
 
-&lt;p&gt;Enter the following in your WSL console.&lt;/p&gt;
+<p>Enter the following in your WSL console.</p>
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git config --global core.autocrlf input
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git config --global core.autocrlf input
+</code></pre></div></div>
 
-&lt;p&gt;It is recommended that repositories contain &lt;code class=&quot;highlighter-rouge&quot;&gt;.gitattrbutes&lt;/code&gt;; a configuration file that defines the
+<p>It is recommended that repositories contain <code class="language-plaintext highlighter-rouge">.gitattrbutes</code>; a configuration file that defines the
 desired line endings that will override the user settings. See 
-&lt;a href=&quot;https://help.github.com/en/github/using-git/configuring-git-to-handle-line-endings&quot;&gt;Configuring Git to Handle Line Endings&lt;/a&gt;
-for further information on configuration Git Attributes.&lt;/p&gt;
+<a href="https://help.github.com/en/github/using-git/configuring-git-to-handle-line-endings">Configuring Git to Handle Line Endings</a>
+for further information on configuration Git Attributes.</p>
 
-&lt;h1 id=&quot;use-wsl-git-from-windows&quot;&gt;Use WSL Git from Windows&lt;/h1&gt;
+<h1 id="use-wsl-git-from-windows">Use WSL Git from Windows</h1>
 
-&lt;p&gt;Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from
+<p>Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from
 the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations.
-Luckily there is a tool called &lt;a href=&quot;https://github.com/andy-5/wslgit&quot;&gt;wslgit&lt;/a&gt; to forward those calls
-to WSL git.&lt;/p&gt;
+Luckily there is a tool called <a href="https://github.com/andy-5/wslgit">wslgit</a> to forward those calls
+to WSL git.</p>
 
-&lt;ol&gt;
-  &lt;li&gt;Create a directory under %programfiles% called &lt;code class=&quot;highlighter-rouge&quot;&gt;wslgit&lt;/code&gt;.&lt;/li&gt;
-  &lt;li&gt;Download the &lt;a href=&quot;https://github.com/andy-5/wslgit&quot;&gt;wslgit&lt;/a&gt; tool and save it under the folder created
-earlier.&lt;/li&gt;
-  &lt;li&gt;Rename &lt;code class=&quot;highlighter-rouge&quot;&gt;wslgit.exe&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;git.exe&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;Update the PATH user environment variable to include the path &lt;code class=&quot;highlighter-rouge&quot;&gt;git.exe&lt;/code&gt; under
-&lt;code class=&quot;highlighter-rouge&quot;&gt;%programfiles%\wslgit&lt;/code&gt;. If Git for Windows is also in the path make sure this precedes it.&lt;/li&gt;
-  &lt;li&gt;Create a new user environment variable &lt;code class=&quot;highlighter-rouge&quot;&gt;WSLGIT_USE_INTERACTIVE_SHELL&lt;/code&gt; and set the value to &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;.&lt;/li&gt;
-&lt;/ol&gt;
+<ol>
+  <li>Create a directory under %programfiles% called <code class="language-plaintext highlighter-rouge">wslgit</code>.</li>
+  <li>Download the <a href="https://github.com/andy-5/wslgit">wslgit</a> tool and save it under the folder created
+earlier.</li>
+  <li>Rename <code class="language-plaintext highlighter-rouge">wslgit.exe</code> to <code class="language-plaintext highlighter-rouge">git.exe</code></li>
+  <li>Update the PATH user environment variable to include the path <code class="language-plaintext highlighter-rouge">git.exe</code> under
+<code class="language-plaintext highlighter-rouge">%programfiles%\wslgit</code>. If Git for Windows is also in the path make sure this precedes it.</li>
+  <li>Create a new user environment variable <code class="language-plaintext highlighter-rouge">WSLGIT_USE_INTERACTIVE_SHELL</code> and set the value to <code class="language-plaintext highlighter-rouge">0</code>.</li>
+</ol>
 
-&lt;p&gt;At this point, you should be able to run a PowerShell or Windows CMD session and execute &lt;code class=&quot;highlighter-rouge&quot;&gt;git&lt;/code&gt;. You
-may have to restart an existing session for changes to take effect.&lt;/p&gt;
+<p>At this point, you should be able to run a PowerShell or Windows CMD session and execute <code class="language-plaintext highlighter-rouge">git</code>. You
+may have to restart an existing session for changes to take effect.</p>
 
-&lt;p&gt;Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using
-Git in WSL in the same repository will likely break it.&lt;/p&gt;</content><author><name></name></author><category term="git" /><summary type="html">For several years I used Git for Windows to manage repositories and it was decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I was used to. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling dependent on Git that ran on Windows What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance In my day to day activities running Git from WSL, I have not found performance to be different between the two. Below is a quick comparison of cloning a repository. git clone using Git for Windows git clone using WSL Note: WSL had improvements from WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile (%USERPROFILE%) directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&amp;lt;your_username&amp;gt; mv .gitconfig ~ mv .ssh/ ~ The private SSH key file permissions need to be updated, follow the step below for your keys. chmod 600 ~/.ssh/&amp;lt;your_key&amp;gt; Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using Git in WSL in the same repository will likely break it.</summary></entry><entry><title type="html">WSL Disk Performance</title><link href="/wsl/2019/11/03/wsl_disk_perf.html" rel="alternate" type="text/html" title="WSL Disk Performance" /><published>2019-11-03T00:00:00-07:00</published><updated>2019-11-03T00:00:00-07:00</updated><id>/wsl/2019/11/03/wsl_disk_perf</id><content type="html" xml:base="/wsl/2019/11/03/wsl_disk_perf.html">&lt;p&gt;The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This
+<p>Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using
+Git in WSL in the same repository will likely break it.</p>]]></content><author><name></name></author><category term="wsl" /><category term="git" /><summary type="html"><![CDATA[For several years I used Git for Windows to manage repositories and it was decent enough. However, I found the Unix-like environment provided by Git for Windows to be very different than what I was used to. I have longed for a way to use Git from WSL to manage my repositories and continue to support tooling dependent on Git that ran on Windows What’s the catch? This assumes that you use SSH keys for authentication. If you use passphrases on your keys then an ssh-agent should be setup. If you use HTTPS authentication then it will require a workaround to function in WSL. Performance In my day to day activities running Git from WSL, I have not found performance to be different between the two. Below is a quick comparison of cloning a repository. git clone using Git for Windows git clone using WSL Note: WSL had improvements from WSL Disk performance Moving the Git configuration to WSL Git for Windows by default uses your user profile (%USERPROFILE%) directory to store configuration and SSH keys. Since the systems are mostly the same, you can copy them over to WSL. cd /mnt/c/Users/&lt;your_username&gt; mv .gitconfig ~ mv .ssh/ ~ The private SSH key file permissions need to be updated, follow the step below for your keys. chmod 600 ~/.ssh/&lt;your_key&gt; Line Endings Git may convert line endings to CRLF on checkout. If you are not paying attention this can cause some head-scratching during code reviews. Setting autocrlf to input will checkout with line endings left as-is, and will convert them to LF when committing. Enter the following in your WSL console. git config --global core.autocrlf input It is recommended that repositories contain .gitattrbutes; a configuration file that defines the desired line endings that will override the user settings. See Configuring Git to Handle Line Endings for further information on configuration Git Attributes. Use WSL Git from Windows Using the WSL command line, you can clone, commit, push, etc. without any issues. However, tools from the Windows side, such as VS Code, will still be calling to Git for Windows for Git operations. Luckily there is a tool called wslgit to forward those calls to WSL git. Create a directory under %programfiles% called wslgit. Download the wslgit tool and save it under the folder created earlier. Rename wslgit.exe to git.exe Update the PATH user environment variable to include the path git.exe under %programfiles%\wslgit. If Git for Windows is also in the path make sure this precedes it. Create a new user environment variable WSLGIT_USE_INTERACTIVE_SHELL and set the value to 0. At this point, you should be able to run a PowerShell or Windows CMD session and execute git. You may have to restart an existing session for changes to take effect. Finally, I recommend uninstalling Git for Windows. Switching between Git for Windows and using Git in WSL in the same repository will likely break it.]]></summary></entry><entry><title type="html">WSL Disk Performance</title><link href="/wsl/2019/11/03/wsl_disk_perf.html" rel="alternate" type="text/html" title="WSL Disk Performance" /><published>2019-11-03T00:00:00-07:00</published><updated>2019-11-03T00:00:00-07:00</updated><id>/wsl/2019/11/03/wsl_disk_perf</id><content type="html" xml:base="/wsl/2019/11/03/wsl_disk_perf.html"><![CDATA[<p>The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This
 is a large reason why operations like building a virtual environment in Python or installing a package
-take noticeably longer in Windows.&lt;/p&gt;
+take noticeably longer in Windows.</p>
 
-&lt;p&gt;One way around this is to use
-&lt;a href=&quot;https://docs.microsoft.com/en-us/windows/wsl/wsl2-about&quot;&gt;WSL2&lt;/a&gt;, which is a
+<p>One way around this is to use
+<a href="https://docs.microsoft.com/en-us/windows/wsl/wsl2-about">WSL2</a>, which is a
 different variant of WSL that runs under a specialized, lightweight VM. It
 provides a far more performant experience than WSL1 and alleviates other
-shortcomings of WSL1. See &lt;a href=&quot;/wsl/2022/02/20/wsl2_disk_perf.html&quot;&gt;WSL2 Disk Performance&lt;/a&gt;
-for a performance comparison between the two.&lt;/p&gt;
+shortcomings of WSL1. See <a href="/wsl/2022/02/20/wsl2_disk_perf.html">WSL2 Disk Performance</a>
+for a performance comparison between the two.</p>
 
-&lt;h1 id=&quot;measuring-performance&quot;&gt;Measuring performance&lt;/h1&gt;
+<h1 id="measuring-performance">Measuring performance</h1>
 
-&lt;p&gt;Pull up a WSL terminal and enter the following commands. Expect them to take a minute
-or two to execute and take note of the times.&lt;/p&gt;
+<p>Pull up a WSL terminal and enter the following commands. Expect them to take a minute
+or two to execute and take note of the times.</p>
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;mkdir test
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir test
 cd test
-dd &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;testfile &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000 &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;500
-&lt;span class=&quot;nb&quot;&gt;time split&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; 10 &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; 10 testfile
-&lt;span class=&quot;nb&quot;&gt;time rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+dd </span><span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>testfile <span class="nv">bs</span><span class="o">=</span>1000 <span class="nv">count</span><span class="o">=</span>500
+<span class="nb">time split</span> <span class="nt">-b</span> 10 <span class="nt">-a</span> 10 testfile
+<span class="nb">time rm</span> <span class="nt">-rf</span> <span class="k">*</span>
+</code></pre></div></div>
 
-&lt;p&gt;The above command generates 50k files by generating a 500KB file, splitting it into files 
-of 10 bytes, and lastly removing all the files.&lt;/p&gt;
+<p>The above command generates 50k files by generating a 500KB file, splitting it into files 
+of 10 bytes, and lastly removing all the files.</p>
 
-&lt;h1 id=&quot;disable-83-naming&quot;&gt;Disable 8.3 Naming&lt;/h1&gt;
+<h1 id="disable-83-naming">Disable 8.3 Naming</h1>
 
-&lt;p&gt;The &lt;a href=&quot;https://en.wikipedia.org/wiki/8.3_filename&quot;&gt;8.3 file naming convention&lt;/a&gt;
+<p>The <a href="https://en.wikipedia.org/wiki/8.3_filename">8.3 file naming convention</a>
 was used in DOS and early versions of Windows. To maintain backward
 compatibility with programs over two decades old, Windows enumerates longer file names with the 8.3
-conventions. This results in additional overhead that adds up when handling a large number of files.&lt;/p&gt;
+conventions. This results in additional overhead that adds up when handling a large number of files.</p>
 
-&lt;p&gt;Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is
-enabled for your system drive.&lt;/p&gt;
+<p>Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is
+enabled for your system drive.</p>
 
-&lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fsutil.exe&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;8dot3name&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;The&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;volume&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;is:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;dot3&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;creation&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;The&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;is:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Per&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;volume&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setting&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;the&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">fsutil.exe</span><span class="w"> </span><span class="nx">8dot3name</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="nx">C:</span><span class="w">
+</span><span class="n">The</span><span class="w"> </span><span class="nx">volume</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="nx">is:</span><span class="w"> </span><span class="nx">0</span><span class="w"> </span><span class="p">(</span><span class="mi">8</span><span class="n">dot3</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="nx">creation</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">enabled</span><span class="p">)</span><span class="o">.</span><span class="w">
+</span><span class="n">The</span><span class="w"> </span><span class="nx">registry</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="nx">is:</span><span class="w"> </span><span class="nx">2</span><span class="w"> </span><span class="p">(</span><span class="n">Per</span><span class="w"> </span><span class="nx">volume</span><span class="w"> </span><span class="nx">setting</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">default</span><span class="p">)</span><span class="o">.</span><span class="w">
 
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Based&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;the&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;above&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;8dot3&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;creation&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</span><span class="n">Based</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">above</span><span class="w"> </span><span class="nx">settings</span><span class="p">,</span><span class="w"> </span><span class="nx">8dot3</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="nx">creation</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">enabled</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">C:</span><span class="w">
+</span></code></pre></div></div>
 
-&lt;p&gt;The enumeration can be turned off at any time and may be turned off either per NTFS
-volume or for all volumes.&lt;/p&gt;
+<p>The enumeration can be turned off at any time and may be turned off either per NTFS
+volume or for all volumes.</p>
 
-&lt;p&gt;Here is how to disable the enumeration on all NTFS volumes:&lt;/p&gt;
-&lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fsutil.exe&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;behavior&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;disable8dot3&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;The&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Disable&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;8dot3&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;creation&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;all&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+<p>Here is how to disable the enumeration on all NTFS volumes:</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">fsutil.exe</span><span class="w"> </span><span class="nx">behavior</span><span class="w"> </span><span class="nx">set</span><span class="w"> </span><span class="nx">disable8dot3</span><span class="w"> </span><span class="nx">1</span><span class="w">
+</span><span class="n">The</span><span class="w"> </span><span class="nx">registry</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">now:</span><span class="w"> </span><span class="nx">1</span><span class="w"> </span><span class="p">(</span><span class="n">Disable</span><span class="w"> </span><span class="nx">8dot3</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="nx">creation</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">all</span><span class="w"> </span><span class="nx">volumes</span><span class="p">)</span><span class="o">.</span><span class="w">
+</span></code></pre></div></div>
 
-&lt;p&gt;Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files
+<p>Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files
 in the directory created beforehand will continue to slow performance. Either re-create
 those files or check out 
-&lt;a href=&quot;https://blogs.technet.microsoft.com/josebda/2012/11/13/windows-server-2012-file-server-tip-disable-8-3-naming-and-strip-those-short-names-too/&quot;&gt;Disable 8.3 Naming (and strip those short names too)&lt;/a&gt;
-on how to remove short names from the files.&lt;/p&gt;
+<a href="https://blogs.technet.microsoft.com/josebda/2012/11/13/windows-server-2012-file-server-tip-disable-8-3-naming-and-strip-those-short-names-too/">Disable 8.3 Naming (and strip those short names too)</a>
+on how to remove short names from the files.</p>
 
-&lt;h1 id=&quot;update-real-time-protection-to-exclude-linux-processes&quot;&gt;Update real-time protection to exclude Linux processes&lt;/h1&gt;
+<h1 id="update-real-time-protection-to-exclude-linux-processes">Update real-time protection to exclude Linux processes</h1>
 
-&lt;p&gt;By default, Windows Defender will scan files being used by a process. This
+<p>By default, Windows Defender will scan files being used by a process. This
 impacts processes that perform a lot of file operations.
 Some suggest to turn off real-time protection; a better way is to
 exclude files those processes are working with from being scanned
-in real-time.&lt;/p&gt;
+in real-time.</p>
 
-&lt;p&gt;Issue the &lt;code class=&quot;highlighter-rouge&quot;&gt;which&lt;/code&gt; command in WSL to determine where the executable location of the process lives.&lt;/p&gt;
+<p>Issue the <code class="language-plaintext highlighter-rouge">which</code> command in WSL to determine where the executable location of the process lives.</p>
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phil@small-kine:/mnt/c/dev/dd_test&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which &lt;span class=&quot;nb&quot;&gt;split&lt;/span&gt;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>phil@small-kine:/mnt/c/dev/dd_test<span class="nv">$ </span>which <span class="nb">split</span>
 /usr/bin/split
-phil@small-kine:/mnt/c/dev/dd_test&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which &lt;span class=&quot;nb&quot;&gt;rm&lt;/span&gt;
+phil@small-kine:/mnt/c/dev/dd_test<span class="nv">$ </span>which <span class="nb">rm</span>
 /bin/rm
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</code></pre></div></div>
 
-&lt;p&gt;Next, update the real-time protection to exclude that process or all processes
-in that folder. Shown below is how to exclude processes located in the &lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/bin&lt;/code&gt; and
-&lt;code class=&quot;highlighter-rouge&quot;&gt;/bin&lt;/code&gt; directories.&lt;/p&gt;
+<p>Next, update the real-time protection to exclude that process or all processes
+in that folder. Shown below is how to exclude processes located in the <code class="language-plaintext highlighter-rouge">/usr/bin</code> and
+<code class="language-plaintext highlighter-rouge">/bin</code> directories.</p>
 
-&lt;p&gt;The following assumes that there is only one distribution installed for WSL, Ubuntu.
+<p>The following assumes that there is only one distribution installed for WSL, Ubuntu.
 It is possible to have multiple distributions (Alpine, Debian, etc.) and multiple
-versions of them. For those situations, change the &lt;code class=&quot;highlighter-rouge&quot;&gt;Where-Object&lt;/code&gt; query in
-the first command below to pick the correct WSL package.&lt;/p&gt;
+versions of them. For those situations, change the <code class="language-plaintext highlighter-rouge">Where-Object</code> query in
+the first command below to pick the correct WSL package.</p>
 
-&lt;p&gt;Open Windows PowerShell as Administrator and enter the following commands.&lt;/p&gt;
+<p>Open Windows PowerShell as Administrator and enter the following commands.</p>
 
-&lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$wsl_target&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;IO.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Combine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LOCALAPPDATA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Packages&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get-AppxPackage&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Where-Object&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-Property&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Name&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-Like&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;*Ubuntu*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;PackageFamilyName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;LocalState&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rootfs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Test-Path&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$wsl_target&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Add-MpPreference&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ExclusionProcess&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Join-Path&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$wsl_target&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ChildPath&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/usr/bin/*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Add-MpPreference&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ExclusionProcess&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Join-Path&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$wsl_target&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ChildPath&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/bin/*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nv">$wsl_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">IO.Path</span><span class="p">]::</span><span class="n">Combine</span><span class="p">(</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">LOCALAPPDATA</span><span class="p">,</span><span class="w"> </span><span class="s2">"Packages"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">Get-AppxPackage</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Where-Object</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="s2">"Name"</span><span class="w"> </span><span class="o">-Like</span><span class="w"> </span><span class="s2">"*Ubuntu*"</span><span class="p">)</span><span class="o">.</span><span class="nf">PackageFamilyName</span><span class="p">,</span><span class="w"> </span><span class="s2">"LocalState"</span><span class="p">,</span><span class="w"> </span><span class="s2">"rootfs"</span><span class="p">)</span><span class="w">
+</span><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Test-Path</span><span class="w"> </span><span class="nv">$wsl_target</span><span class="w">
+</span><span class="n">True</span><span class="w">
+</span><span class="nx">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Add-MpPreference</span><span class="w"> </span><span class="nt">-ExclusionProcess</span><span class="w"> </span><span class="p">(</span><span class="n">Join-Path</span><span class="w"> </span><span class="nv">$wsl_target</span><span class="w"> </span><span class="nt">-ChildPath</span><span class="w"> </span><span class="s2">"/usr/bin/*"</span><span class="p">)</span><span class="w">
+</span><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Add-MpPreference</span><span class="w"> </span><span class="nt">-ExclusionProcess</span><span class="w"> </span><span class="p">(</span><span class="n">Join-Path</span><span class="w"> </span><span class="nv">$wsl_target</span><span class="w"> </span><span class="nt">-ChildPath</span><span class="w"> </span><span class="s2">"/bin/*"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
 
-&lt;p&gt;Here is an example for excluding Node.js processes under NVM.&lt;/p&gt;
+<p>Here is an example for excluding Node.js processes under NVM.</p>
 
-&lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nf&quot;&gt;PS&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;C:\WINDOWS\system32&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Add-MpPreference&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ExclusionProcess&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Join-Path&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$wsl_target&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ChildPath&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/home/your_home_dir/.nvm/versions/node/*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="w"> </span><span class="nx">C:\WINDOWS\system32</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Add-MpPreference</span><span class="w"> </span><span class="nt">-ExclusionProcess</span><span class="w"> </span><span class="p">(</span><span class="n">Join-Path</span><span class="w"> </span><span class="nv">$wsl_target</span><span class="w"> </span><span class="nt">-ChildPath</span><span class="w"> </span><span class="s2">"/home/your_home_dir/.nvm/versions/node/*"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
 
-&lt;blockquote&gt;
-  &lt;p&gt;While WSL processes are run from directories under &lt;code class=&quot;highlighter-rouge&quot;&gt;%localappdata%\Packages\...&lt;/code&gt;, they are not
-meant to be used for file access, use &lt;code class=&quot;highlighter-rouge&quot;&gt;\\wsl$\&lt;/code&gt; instead.&lt;/p&gt;
-&lt;/blockquote&gt;
+<blockquote>
+  <p>While WSL processes are run from directories under <code class="language-plaintext highlighter-rouge">%localappdata%\Packages\...</code>, they are not
+meant to be used for file access, use <code class="language-plaintext highlighter-rouge">\\wsl$\</code> instead.</p>
+</blockquote>
 
-&lt;p&gt;Check out
-&lt;a href=&quot;https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-defender-antivirus/configure-process-opened-file-exclusions-windows-defender-antivirus&quot;&gt;Defender Anti-Virus Configure Process Exclusions&lt;/a&gt;
-for further configuration options for Windows Defender.&lt;/p&gt;
+<p>Check out
+<a href="https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-defender-antivirus/configure-process-opened-file-exclusions-windows-defender-antivirus">Defender Anti-Virus Configure Process Exclusions</a>
+for further configuration options for Windows Defender.</p>
 
-&lt;h1 id=&quot;performance&quot;&gt;Performance&lt;/h1&gt;
+<h1 id="performance">Performance</h1>
 
-&lt;p&gt;Using the file I/O example provided earlier and running a benchmark you can see a marked improvement
+<p>Using the file I/O example provided earlier and running a benchmark you can see a marked improvement
 in performance using the proceeding techniques. That said, there still is dramatic difference
-between WSL and Linux in raw performance.&lt;/p&gt;
+between WSL and Linux in raw performance.</p>
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;Operation&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL with changes&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;Docker (VM)&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;split 50k files&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;2m3.72s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;39.95s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;4.95s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rm 50k files&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;27.15s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;18.71s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;2.04s&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Operation</th>
+      <th style="text-align: right">WSL</th>
+      <th style="text-align: right">WSL with changes</th>
+      <th style="text-align: right">Docker (VM)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">split 50k files</td>
+      <td style="text-align: right">2m3.72s</td>
+      <td style="text-align: right">39.95s</td>
+      <td style="text-align: right">4.95s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">rm 50k files</td>
+      <td style="text-align: right">27.15s</td>
+      <td style="text-align: right">18.71s</td>
+      <td style="text-align: right">2.04s</td>
+    </tr>
+  </tbody>
+</table>
 
-&lt;p&gt;Taking a look at some workflows and how their performance varies between systems those differences
-are not as substantial as before, but still noticeable.&lt;/p&gt;
+<p>Taking a look at some workflows and how their performance varies between systems those differences
+are not as substantial as before, but still noticeable.</p>
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;Operation&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;WSL with changes&lt;/th&gt;
-      &lt;th style=&quot;text-align: right&quot;&gt;Docker (VM)&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;Python 3.6.9 venv creation&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;12.63s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;5.86s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;3.17s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;npm create next-app&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;2m33.90s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;1m13.31s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;24.95s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;next.js project build&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;45.91s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;21.01s&lt;/td&gt;
-      &lt;td style=&quot;text-align: right&quot;&gt;20.83s&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Operation</th>
+      <th style="text-align: right">WSL</th>
+      <th style="text-align: right">WSL with changes</th>
+      <th style="text-align: right">Docker (VM)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Python 3.6.9 venv creation</td>
+      <td style="text-align: right">12.63s</td>
+      <td style="text-align: right">5.86s</td>
+      <td style="text-align: right">3.17s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">npm create next-app</td>
+      <td style="text-align: right">2m33.90s</td>
+      <td style="text-align: right">1m13.31s</td>
+      <td style="text-align: right">24.95s</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">next.js project build</td>
+      <td style="text-align: right">45.91s</td>
+      <td style="text-align: right">21.01s</td>
+      <td style="text-align: right">20.83s</td>
+    </tr>
+  </tbody>
+</table>
 
-&lt;blockquote&gt;
-  &lt;p&gt;Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a
-pronounced improvement with better hardware.&lt;/p&gt;
-&lt;/blockquote&gt;
+<blockquote>
+  <p>Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a
+pronounced improvement with better hardware.</p>
+</blockquote>
 
-&lt;blockquote&gt;
-  &lt;p&gt;Node.js 12.13 LTS used for next.js benchmarks.&lt;/p&gt;
-&lt;/blockquote&gt;</content><author><name></name></author><category term="performance" /><summary type="html">The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This is a large reason why operations like building a virtual environment in Python or installing a package take noticeably longer in Windows. One way around this is to use WSL2, which is a different variant of WSL that runs under a specialized, lightweight VM. It provides a far more performant experience than WSL1 and alleviates other shortcomings of WSL1. See WSL2 Disk Performance for a performance comparison between the two. Measuring performance Pull up a WSL terminal and enter the following commands. Expect them to take a minute or two to execute and take note of the times. mkdir test cd test dd if=/dev/zero of=testfile bs=1000 count=500 time split -b 10 -a 10 testfile time rm -rf * The above command generates 50k files by generating a 500KB file, splitting it into files of 10 bytes, and lastly removing all the files. Disable 8.3 Naming The 8.3 file naming convention was used in DOS and early versions of Windows. To maintain backward compatibility with programs over two decades old, Windows enumerates longer file names with the 8.3 conventions. This results in additional overhead that adds up when handling a large number of files. Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is enabled for your system drive. PS C:\WINDOWS\system32&amp;gt; fsutil.exe 8dot3name query C: The volume state is: 0 (8dot3 name creation is enabled). The registry state is: 2 (Per volume setting - the default). Based on the above settings, 8dot3 name creation is enabled on C: The enumeration can be turned off at any time and may be turned off either per NTFS volume or for all volumes. Here is how to disable the enumeration on all NTFS volumes: PS C:\WINDOWS\system32&amp;gt; fsutil.exe behavior set disable8dot3 1 The registry state is now: 1 (Disable 8dot3 name creation on all volumes). Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files in the directory created beforehand will continue to slow performance. Either re-create those files or check out Disable 8.3 Naming (and strip those short names too) on how to remove short names from the files. Update real-time protection to exclude Linux processes By default, Windows Defender will scan files being used by a process. This impacts processes that perform a lot of file operations. Some suggest to turn off real-time protection; a better way is to exclude files those processes are working with from being scanned in real-time. Issue the which command in WSL to determine where the executable location of the process lives. phil@small-kine:/mnt/c/dev/dd_test$ which split /usr/bin/split phil@small-kine:/mnt/c/dev/dd_test$ which rm /bin/rm Next, update the real-time protection to exclude that process or all processes in that folder. Shown below is how to exclude processes located in the /usr/bin and /bin directories. The following assumes that there is only one distribution installed for WSL, Ubuntu. It is possible to have multiple distributions (Alpine, Debian, etc.) and multiple versions of them. For those situations, change the Where-Object query in the first command below to pick the correct WSL package. Open Windows PowerShell as Administrator and enter the following commands. PS C:\WINDOWS\system32&amp;gt; $wsl_target = [IO.Path]::Combine($env:LOCALAPPDATA, &quot;Packages&quot;, (Get-AppxPackage | Where-Object -Property &quot;Name&quot; -Like &quot;*Ubuntu*&quot;).PackageFamilyName, &quot;LocalState&quot;, &quot;rootfs&quot;) PS C:\WINDOWS\system32&amp;gt; Test-Path $wsl_target True PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/usr/bin/*&quot;) PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/bin/*&quot;) Here is an example for excluding Node.js processes under NVM. PS C:\WINDOWS\system32&amp;gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath &quot;/home/your_home_dir/.nvm/versions/node/*&quot;) While WSL processes are run from directories under %localappdata%\Packages\..., they are not meant to be used for file access, use \\wsl$\ instead. Check out Defender Anti-Virus Configure Process Exclusions for further configuration options for Windows Defender. Performance Using the file I/O example provided earlier and running a benchmark you can see a marked improvement in performance using the proceeding techniques. That said, there still is dramatic difference between WSL and Linux in raw performance. Operation WSL WSL with changes Docker (VM) split 50k files 2m3.72s 39.95s 4.95s rm 50k files 27.15s 18.71s 2.04s Taking a look at some workflows and how their performance varies between systems those differences are not as substantial as before, but still noticeable. Operation WSL WSL with changes Docker (VM) Python 3.6.9 venv creation 12.63s 5.86s 3.17s npm create next-app 2m33.90s 1m13.31s 24.95s next.js project build 45.91s 21.01s 20.83s Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a pronounced improvement with better hardware. Node.js 12.13 LTS used for next.js benchmarks.</summary></entry><entry><title type="html">Windows Subsystem for Linux (WSL)</title><link href="/wsl/2019/11/02/wsl_intro.html" rel="alternate" type="text/html" title="Windows Subsystem for Linux (WSL)" /><published>2019-11-02T00:00:00-07:00</published><updated>2019-11-02T00:00:00-07:00</updated><id>/wsl/2019/11/02/wsl_intro</id><content type="html" xml:base="/wsl/2019/11/02/wsl_intro.html">&lt;p&gt;A large portion of my job deals with supporting Windows desktop applications
-along with working with Linux on backend and embedded platforms.&lt;/p&gt;
+<blockquote>
+  <p>Node.js 12.13 LTS used for next.js benchmarks.</p>
+</blockquote>]]></content><author><name></name></author><category term="wsl" /><category term="performance" /><summary type="html"><![CDATA[The Windows NTFS file system is not a strong performer with small files in comparison with ext4. This is a large reason why operations like building a virtual environment in Python or installing a package take noticeably longer in Windows. One way around this is to use WSL2, which is a different variant of WSL that runs under a specialized, lightweight VM. It provides a far more performant experience than WSL1 and alleviates other shortcomings of WSL1. See WSL2 Disk Performance for a performance comparison between the two. Measuring performance Pull up a WSL terminal and enter the following commands. Expect them to take a minute or two to execute and take note of the times. mkdir test cd test dd if=/dev/zero of=testfile bs=1000 count=500 time split -b 10 -a 10 testfile time rm -rf * The above command generates 50k files by generating a 500KB file, splitting it into files of 10 bytes, and lastly removing all the files. Disable 8.3 Naming The 8.3 file naming convention was used in DOS and early versions of Windows. To maintain backward compatibility with programs over two decades old, Windows enumerates longer file names with the 8.3 conventions. This results in additional overhead that adds up when handling a large number of files. Open the Windows command shell as Administrator. Enter the following to see if 8dot3 naming is enabled for your system drive. PS C:\WINDOWS\system32&gt; fsutil.exe 8dot3name query C: The volume state is: 0 (8dot3 name creation is enabled). The registry state is: 2 (Per volume setting - the default). Based on the above settings, 8dot3 name creation is enabled on C: The enumeration can be turned off at any time and may be turned off either per NTFS volume or for all volumes. Here is how to disable the enumeration on all NTFS volumes: PS C:\WINDOWS\system32&gt; fsutil.exe behavior set disable8dot3 1 The registry state is now: 1 (Disable 8dot3 name creation on all volumes). Disabling 8dot3 naming prevents 8.3 enumerations on files created after the change. Existing files in the directory created beforehand will continue to slow performance. Either re-create those files or check out Disable 8.3 Naming (and strip those short names too) on how to remove short names from the files. Update real-time protection to exclude Linux processes By default, Windows Defender will scan files being used by a process. This impacts processes that perform a lot of file operations. Some suggest to turn off real-time protection; a better way is to exclude files those processes are working with from being scanned in real-time. Issue the which command in WSL to determine where the executable location of the process lives. phil@small-kine:/mnt/c/dev/dd_test$ which split /usr/bin/split phil@small-kine:/mnt/c/dev/dd_test$ which rm /bin/rm Next, update the real-time protection to exclude that process or all processes in that folder. Shown below is how to exclude processes located in the /usr/bin and /bin directories. The following assumes that there is only one distribution installed for WSL, Ubuntu. It is possible to have multiple distributions (Alpine, Debian, etc.) and multiple versions of them. For those situations, change the Where-Object query in the first command below to pick the correct WSL package. Open Windows PowerShell as Administrator and enter the following commands. PS C:\WINDOWS\system32&gt; $wsl_target = [IO.Path]::Combine($env:LOCALAPPDATA, "Packages", (Get-AppxPackage | Where-Object -Property "Name" -Like "*Ubuntu*").PackageFamilyName, "LocalState", "rootfs") PS C:\WINDOWS\system32&gt; Test-Path $wsl_target True PS C:\WINDOWS\system32&gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath "/usr/bin/*") PS C:\WINDOWS\system32&gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath "/bin/*") Here is an example for excluding Node.js processes under NVM. PS C:\WINDOWS\system32&gt; Add-MpPreference -ExclusionProcess (Join-Path $wsl_target -ChildPath "/home/your_home_dir/.nvm/versions/node/*") While WSL processes are run from directories under %localappdata%\Packages\..., they are not meant to be used for file access, use \\wsl$\ instead. Check out Defender Anti-Virus Configure Process Exclusions for further configuration options for Windows Defender. Performance Using the file I/O example provided earlier and running a benchmark you can see a marked improvement in performance using the proceeding techniques. That said, there still is dramatic difference between WSL and Linux in raw performance. Operation WSL WSL with changes Docker (VM) split 50k files 2m3.72s 39.95s 4.95s rm 50k files 27.15s 18.71s 2.04s Taking a look at some workflows and how their performance varies between systems those differences are not as substantial as before, but still noticeable. Operation WSL WSL with changes Docker (VM) Python 3.6.9 venv creation 12.63s 5.86s 3.17s npm create next-app 2m33.90s 1m13.31s 24.95s next.js project build 45.91s 21.01s 20.83s Benchmarks performed on a 1st generation Surface Pro with 64GB SSD. Your results will see a pronounced improvement with better hardware. Node.js 12.13 LTS used for next.js benchmarks.]]></summary></entry><entry><title type="html">Windows Subsystem for Linux (WSL)</title><link href="/wsl/2019/11/02/wsl_intro.html" rel="alternate" type="text/html" title="Windows Subsystem for Linux (WSL)" /><published>2019-11-02T00:00:00-07:00</published><updated>2019-11-02T00:00:00-07:00</updated><id>/wsl/2019/11/02/wsl_intro</id><content type="html" xml:base="/wsl/2019/11/02/wsl_intro.html"><![CDATA[<p>A large portion of my job deals with supporting Windows desktop applications
+along with working with Linux on backend and embedded platforms.</p>
 
-&lt;p&gt;Using WSL allows me to pop into a project from the command line, edit a line
+<p>Using WSL allows me to pop into a project from the command line, edit a line
 or two with Vim, punch a commit in Git, and compile an executable in what feels
 like seconds. Yet it keeps the familiar environment and supports business
-applications I depend on.&lt;/p&gt;
+applications I depend on.</p>
 
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/wsl/2019/11/03/wsl_disk_perf.html&quot;&gt;WSL Disk Performance&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/wsl/2019/12/12/wsl_cross_plat_git.html&quot;&gt;Git for Windows using WSL&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/wsl/2022/02/20/wsl2_disk_perf.html&quot;&gt;WSL2 Disk Performance&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;Docker from WSL&lt;/li&gt;
-  &lt;li&gt;Copy/Paste between WSL and Windows&lt;/li&gt;
-&lt;/ul&gt;
+<ul>
+  <li><a href="/wsl/2019/11/03/wsl_disk_perf.html">WSL Disk Performance</a></li>
+  <li><a href="/wsl/2019/12/12/wsl_cross_plat_git.html">Git for Windows using WSL</a></li>
+  <li><a href="/wsl/2022/02/20/wsl2_disk_perf.html">WSL2 Disk Performance</a></li>
+  <li><a href="/wsl/2022/09/29/docker_wsl.html">Docker for Windows</a></li>
+  <li>Copy/Paste between WSL and Windows</li>
+</ul>
 
-&lt;p&gt;and more…&lt;/p&gt;</content><author><name></name></author><category term="intro" /><summary type="html">A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk Performance Git for Windows using WSL WSL2 Disk Performance Docker from WSL Copy/Paste between WSL and Windows and more…</summary></entry></feed>
+<p>and more…</p>]]></content><author><name></name></author><category term="wsl" /><category term="intro" /><summary type="html"><![CDATA[A large portion of my job deals with supporting Windows desktop applications along with working with Linux on backend and embedded platforms. Using WSL allows me to pop into a project from the command line, edit a line or two with Vim, punch a commit in Git, and compile an executable in what feels like seconds. Yet it keeps the familiar environment and supports business applications I depend on. WSL Disk Performance Git for Windows using WSL WSL2 Disk Performance Docker for Windows Copy/Paste between WSL and Windows and more…]]></summary></entry></feed>
