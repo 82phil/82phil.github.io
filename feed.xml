@@ -1,4 +1,594 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2022-09-29T22:53:22-07:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">Docker for Windows</title><link href="/wsl/2022/09/29/docker_wsl.html" rel="alternate" type="text/html" title="Docker for Windows" /><published>2022-09-29T00:00:00-07:00</published><updated>2022-09-29T00:00:00-07:00</updated><id>/wsl/2022/09/29/docker_wsl</id><content type="html" xml:base="/wsl/2022/09/29/docker_wsl.html"><![CDATA[<p>There are two options to support running Linux containers on Windows; Docker
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-04-24T19:54:55-07:00</updated><id>/feed.xml</id><title type="html">Notes, Thoughts, and Adventures</title><subtitle>...</subtitle><entry><title type="html">Package a Python Application with MSIX</title><link href="/python/2025/04/24/msix_pyinstaller.html" rel="alternate" type="text/html" title="Package a Python Application with MSIX" /><published>2025-04-24T00:00:00-07:00</published><updated>2025-04-24T00:00:00-07:00</updated><id>/python/2025/04/24/msix_pyinstaller</id><content type="html" xml:base="/python/2025/04/24/msix_pyinstaller.html"><![CDATA[<p>This article demonstrates how to use MSIX to package a Windows desktop
+application written in Python and techniques to distribute it. MSIX is a
+packaging format from Microsoft that offers native installation and application
+updates, distributed via the Microsoft Store or from an external source. There
+are other key benefits, such as avoiding Windows SmartScreen prompts and
+options for code-signing. For an in-depth outline of these features and more,
+see the <a href="https://learn.microsoft.com/en-us/windows/msix/resources" title="MSIX resources">MISX resources</a>.</p>
+
+<h2 id="building-an-executable">Building an Executable</h2>
+
+<p>To make it simple for users to run your application, you will need a tool that
+bundles your Python code into an executable containing the Python interpreter,
+package dependencies, and runtime dependencies. I will demonstrate this using
+<a href="https://www.pyinstaller.org/">PyInstaller</a>, a popular tool for this purpose.</p>
+
+<h3 id="demonstration-">Demonstration <a name="pyinstaller_demo"></a></h3>
+
+<p>The example below uses PyInstaller to bundle a simple Python application with an
+executable entry point. Assuming you already have Python installed, launch
+PowerShell, and from an empty directory perform the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">py.exe</span><span class="w"> </span><span class="nt">-3</span><span class="w"> </span><span class="nt">-m</span><span class="w"> </span><span class="nx">venv</span><span class="w"> </span><span class="o">.</span><span class="nf">venv</span><span class="w">
+</span><span class="nx">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">/.venv/Scripts/Activate.ps1</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">pip</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nx">pyinstaller</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="s2">"input('Hello World!')"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Out-File</span><span class="w"> </span><span class="nx">demo.py</span><span class="w"> </span><span class="nt">-Encoding</span><span class="w"> </span><span class="nx">utf8</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">python</span><span class="w"> </span><span class="nx">demo.py</span><span class="w">
+</span><span class="n">Hello</span><span class="w"> </span><span class="nx">World</span><span class="o">!</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">pyinstaller</span><span class="w"> </span><span class="nx">demo.py</span><span class="w"> </span><span class="nt">--clean</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\demo.exe</span><span class="w">
+</span><span class="n">Hello</span><span class="w"> </span><span class="nx">World</span><span class="o">!</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Pretty simple, right? You could zip the <code class="language-plaintext highlighter-rouge">demo</code> folder and distribute it right
+now! Alternatively, running <code class="language-plaintext highlighter-rouge">pyinstaller</code> with the <code class="language-plaintext highlighter-rouge">--onefile</code> option will
+bundle all the dependencies into a single executable, making it even easier to
+distribute. But it is not that simple, as I will explain in the next section.</p>
+
+<blockquote>
+  <p>If your Anti-Virus software flags a file in the pip installation of PyInstaller
+or the executable it creates as malware, it is a false positive. See
+<a href="https://github.com/pyinstaller/pyinstaller/issues?q=label%3Aantivirus-false-positives" title="PyInstaller GitHub Issues with the antivirus-false-positives label">PyInstaller AV False-Positive Issues on GitHub</a> for more information.</p>
+</blockquote>
+
+<blockquote>
+  <p>PyInstaller one-file executables work by extracting all the application files
+stored in the executable to the Windows Temp directory and then running the app
+from there. This process increases the time it takes to launch the application
+and is unnecessary for MSIX packaging since the user is presented with a single
+file to download and install.</p>
+</blockquote>
+
+<h3 id="anti-virus-false-positives">Anti-Virus False Positives</h3>
+
+<p>As <code class="language-plaintext highlighter-rouge">PyInstaller</code> became a popular tool for legitimate developers to build
+executables, it unfortunately also did for malware devs. As malicious software
+became more elusive, AV vendors harnessed broader techniques, such as AI, to
+continue identifying them. Unfortunately, since most of the underlying
+components between malware and legitimate applications are similar in
+composition (ex. the Python interpreter, runtime dependencies, etc.), AV
+engines may flag genuine apps bundled by PyInstaller as malware.</p>
+
+<p>Here is a <a href="https://www.virustotal.com/gui/file/bbb6ab4881177189246c03984348fc67e007914a91c542af5648fc1111df1da6" title="VirusTotal Analysis of demo.exe">submission of <code class="language-plaintext highlighter-rouge">demo.exe</code></a> built using the <code class="language-plaintext highlighter-rouge">pyinstaller --onefile</code>
+option to <a href="https://www.virustotal.com/">VirusTotal</a>, a service that scans file submissions
+with a multitude of AV engines:</p>
+
+<p><img src="/assets/python_msix/pyinstaller_hello_world_onefile_virustotal.png" alt="VirusTotal Scan of demo.exe" title="VirusTotal Analysis of demo.exe with 4 vendors flagging it as malware" /></p>
+
+<p>Here, a simple “Hello, World!” application is identified by some AV vendors as
+malicious.  McAfee, which either comes pre-installed with a few common big-name
+PC manufacturers or installed in enterprise environments, flags the example as
+malware. It’s not just McAfee, other major vendors like Symantec, Sophos, and
+Windows Defender have flagged similar executables as malware in the past.</p>
+
+<p>AV false flags can be a problem, not just for PyInstaller executables, but for
+any exe if the AV’s engine finds enough similarities. To prove that
+the executable is authentic, built by a trusted developer, and has not been
+tampered with, it needs to be code-signed.  Unfortunately, this comes at a
+cost!</p>
+
+<h3 id="trusted-code-signing-certificates">Trusted Code Signing Certificates</h3>
+
+<p>Here is a quick rundown of standard code-signing certificates from
+<a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/dashboard/code-signing-cert-manage" title="Microsoft Docs: Get a code-signing certificate">popular and trusted root certificate authorities</a>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Certificate Authority</th>
+      <th>Cost (1 yr)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Certum</td>
+      <td>€159</td>
+    </tr>
+    <tr>
+      <td>DigiCert</td>
+      <td>$539</td>
+    </tr>
+    <tr>
+      <td>GlobalSign</td>
+      <td>$289</td>
+    </tr>
+    <tr>
+      <td>Sectigo</td>
+      <td>$429</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>Certum offers a discount for open-source projects at €69 for the first year.</p>
+</blockquote>
+
+<p>There are two types of signing certificates, standard (priced above) and
+Extended Validation. EV certificates are not available for individual developers
+unless they have a registered business, such as an LLC. In addition, they can be
+nearly twice as expensive. The advantage of an EV cert is when the app is first
+released, users will not be prompted by <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen/" title="Windows SmartScreen Downloaded App Behavior">Windows SmartScreen</a>, notifying the
+user to be cautious about the app, and rank higher in trust with AV
+engines.  On that last point, code-signed executables do not guarantee that AV
+engines will not flag them as malware, as bad actors can also code-sign their
+executables. That is why it is important to periodically sample at least several
+AV engines to ensure your app is not flagged.</p>
+
+<p>But you don’t have to go down this road. I will show you how MSIX has options
+around this, providing alternatives for developers. Jumping ahead, let’s see
+what <a href="https://www.virustotal.com/gui/file/1b5d3b88aa5479c79cef670b62751d45f8b1310179385aed13040c238d7f60cf/" title="VirusTotal Analysis of demo.msix">VirusTotal comes back with the demo packaged with MSIX</a>:</p>
+
+<p><img src="/assets/python_msix/pyinstaller_hello_world_msix_virustotal.png" alt="VirusTotal Scan of demo.msix" title="VirusTotal Analysis of demo.msix with indicating it's clean" /></p>
+
+<p>Much better, now to get started!</p>
+
+<h2 id="building-an-msix-package">Building an MSIX Package</h2>
+
+<h3 id="installing-msix-tools">Installing MSIX Tools</h3>
+
+<p><a href="https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/">Download the Windows SDK</a>
+and select the <em>Windows App Certification Kit</em> (see image below) from the list of
+features available to install. This feature provides <code class="language-plaintext highlighter-rouge">makeappx</code> and <code class="language-plaintext highlighter-rouge">signtool</code>, used
+to bundle and sign the application.</p>
+
+<blockquote>
+  <p>Both features, <strong>Windows App Certification Kit</strong> and <strong>Signing Tools for Desktop
+Applications</strong>, provide <code class="language-plaintext highlighter-rouge">signtool</code>, but they are different! Only the App
+Certification Kit <code class="language-plaintext highlighter-rouge">signtool</code> supports signing both MSIX packages and executables.
+Keep this in mind if you have both installed.</p>
+</blockquote>
+
+<p><img src="/assets/python_msix/winsdk_app_cert_kit.png" alt="Windows SDK Features to select for MSIX" title="Windows SDK Feature Selection with Windows App Certification Selected (This automatically selects Application Verifier for Windows)" /></p>
+
+<p>Next, add the tools to the Path Environment variable. Either type in “Edit
+Environmental Variables” in Windows Search, or paste the following into the
+Windows Run Command (press the Win + R keys at the same time):</p>
+
+<pre><code class="language-cmd">rundll32.exe sysdm.cpl,EditEnvironmentVariables
+</code></pre>
+
+<p>Double-click the <code class="language-plaintext highlighter-rouge">Path</code> Environment variable under User variables, then add a new entry
+with the path to the Windows SDK. It is typically under the <em>x86 Program Files</em> directory,
+be sure to include the <code class="language-plaintext highlighter-rouge">App Certification Kit</code> folder in the path entry.</p>
+
+<p><img src="/assets/python_msix/winsdk_add_envpath.png" alt="Windows Add SDK to env path" title="Windows Environment Variables with Windows SDK path being added to 'Path' variable" /></p>
+
+<p>Launch a new PowerShell console and enter <code class="language-plaintext highlighter-rouge">makeappx</code>. It should return the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">makeappx</span><span class="w">
+</span><span class="n">Microsoft</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="w"> </span><span class="n">MakeAppx</span><span class="w"> </span><span class="nx">Tool</span><span class="w">
+</span><span class="n">Copyright</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="mi">2013</span><span class="w"> </span><span class="n">Microsoft.</span><span class="w">  </span><span class="nx">All</span><span class="w"> </span><span class="nx">rights</span><span class="w"> </span><span class="nx">reserved.</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="create-a-code-signing-certificate">Create a Code Signing Certificate</h3>
+
+<p>To be able to install an MSIX package, it must be code-signed. You may use an
+existing trusted code-signing certificate if you already have one, or with a
+<a href="https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/starting-windows-powershell?view=powershell-7.3#with-administrative-privileges-run-as-administrator">PowerShell console running as Administrator</a>, paste the following to
+create a <a href="https://learn.microsoft.com/en-us/windows/msix/package/create-certificate-package-signing" title="Microsoft Docs: Create a certificate for package signing">self-signed certificate for code-signing.</a>. Do not close the
+PowerShell console just yet after issuing this, as it is needed for the next
+part.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$cert</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-SelfSignedCertificate</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-Type</span><span class="w"> </span><span class="nx">Custom</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-Subject</span><span class="w"> </span><span class="s2">"CN=Python Appx Demo, O=Demo Corp, C=US"</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-KeyUsage</span><span class="w"> </span><span class="nx">DigitalSignature</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-FriendlyName</span><span class="w"> </span><span class="s2">"Python Appx Demo Cert"</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-CertStoreLocation</span><span class="w"> </span><span class="s2">"Cert:\LocalMachine\My"</span><span class="w"> </span><span class="se">`
+</span><span class="w">    </span><span class="nt">-TextExtension</span><span class="w"> </span><span class="p">@(</span><span class="s2">"2.5.29.37={text}1.3.6.1.5.5.7.3.3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"2.5.29.19={text}"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Since the MSIX installer only <a href="https://learn.microsoft.com/en-us/windows/msix/app-installer/troubleshoot-appinstaller-issues#trusted-certificates" title="Microsoft Docs: Troubleshoot App Installer Issues - Trusted Certificates">trusts certs from the Local Computer Store under
+Trusted People or Trusted Root Authorities</a>, the self-signed certificate
+must be moved to that location. It is recommended to use Trusted People to trust
+the self-signed cert. Issue the following into the same PowerShell console used
+earlier to move the cert over.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Move-Item</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nv">$cert</span><span class="o">.</span><span class="nf">PSPath</span><span class="w"> </span><span class="nt">-Destination</span><span class="w"> </span><span class="nx">Cert:\LocalMachine\TrustedPeople\</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="generate-the-manifest">Generate the Manifest</h3>
+
+<p>It is possible to write the <a href="https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-manual-conversion" title="Microsoft Docs: Generating MSIX Package Components"><code class="language-plaintext highlighter-rouge">AppxManifest.xml</code></a> XML file manually,
+however, for the sake of keeping this demo simple, I have a repository that
+contains a Python script to generate them.</p>
+
+<p>There are a few things to grab before we can generate the manifest. Visit the
+<a href="https://github.com/82phil/msix_python_hello_world" title="Python MSIX Demo Project GitHub Repo">Python MSIX demo project</a> repo and download the following to the same
+project directory that you ran the <a href="#pyinstaller_demo">PyInstaller demonstration</a>
+from the previous section:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manifest.json</code></li>
+  <li><code class="language-plaintext highlighter-rouge">gen_msix_xml.py</code></li>
+  <li><code class="language-plaintext highlighter-rouge">\logos</code> folder and its contents</li>
+</ul>
+
+<p>Next, using a PowerShell console, navigate to the project directory and type the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">/.venv/Scripts/Activate.ps1</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">python</span><span class="w"> </span><span class="o">.</span><span class="nx">\gen_msix_xml.py</span><span class="w"> </span><span class="nt">--app-version</span><span class="w"> </span><span class="nx">1.0.0.0</span><span class="w"> </span><span class="nt">--manifest</span><span class="w"> </span><span class="o">.</span><span class="nx">\manifest.json</span><span class="w"> </span><span class="nt">--logo-dir</span><span class="w"> </span><span class="o">.</span><span class="nx">\logos</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\</span><span class="w">
+</span><span class="n">Generating</span><span class="w"> </span><span class="nx">MSIX</span><span class="w"> </span><span class="nx">files...</span><span class="w">
+</span><span class="kr">Using</span><span class="w"> </span><span class="n">Code</span><span class="w"> </span><span class="nx">Signing</span><span class="w"> </span><span class="nx">Certificate:</span><span class="w">
+ </span><span class="s1">'Python Appx Demo Cert'</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="n">CD6EED1AD704AAEB7C5D0ECE94051D50879EB0F</span><span class="w">
+
+</span><span class="n">Generated</span><span class="w"> </span><span class="nx">AppxManifest</span><span class="w">
+</span><span class="n">Generated</span><span class="w"> </span><span class="nx">AppInstaller</span><span class="w">
+</span><span class="n">Completed</span><span class="w"> </span><span class="nx">Successfully</span><span class="o">!</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Now that the manifest has been generated it is time to test it out.</p>
+
+<h3 id="testing-the-manifest">Testing the Manifest</h3>
+
+<p>To add the application directly from the <code class="language-plaintext highlighter-rouge">AppxManifest.xml</code>
+file, Windows needs to have the Developer Mode option enabled. Go to <em>Settings</em> &gt;
+<em>Update &amp; Security</em> &gt; <em>For Developers</em> and enable <strong>Developer Mode</strong>. For more
+information, see the <a href="https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode" title="Microsoft Docs: Developer Mode">Microsoft Docs on Developer Mode</a>.</p>
+
+<blockquote>
+  <p>If you are using an older version of Windows, you may need to enable
+<a href="https://learn.microsoft.com/en-us/windows/application-management/sideload-apps-in-windows-10" title="Microsoft Docs: Sideload Apps in Windows 10">Sideloaded Apps</a> as well. For current versions of Windows, this is
+<a href="https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging#sideload-apps" title="Microsoft Docs: Sideload Apps">enabled by default and is not provided as an option under Settings</a>.</p>
+</blockquote>
+
+<p>With a PowerShell console in the project directory, issue the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">Add-AppxPackage</span><span class="w"> </span><span class="nt">-Register</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\AppxManifest.xml</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This will parse the <code class="language-plaintext highlighter-rouge">AppxManifest.xml</code> and register the application with
+Windows. It validates the XML in reference to the XML schemas.  However, there
+are a few gotchas to be aware of:</p>
+
+<ul>
+  <li>If the logo images cannot be resolved, the registration will succeed but the icons will be blank.</li>
+  <li>Since this process does not sign the application, certificate issues will not be caught here.</li>
+</ul>
+
+<p>With that, check the Start Menu to see if the application is listed.</p>
+
+<p><img src="/assets/python_msix/msix_demo_app_start_menu.png" alt="Windows Start Menu with Demo App" title="Windows Start Menu with Demo App" /></p>
+
+<p>And then launch it.</p>
+
+<p><img src="/assets/python_msix/msix_demo_app_via_add_pkg.png" alt="Windows Demo App" title="Windows Demo App via Add-AppxPackage" /></p>
+
+<p>Success! Note that since the application was installed using the manifest, it
+launched from the project directory where PyInstaller placed the executable, as
+you can see from the path in the title bar.</p>
+
+<p>Pull up the Start Menu again, right-click the application, then select
+<em>Uninstall</em>.  Give it a few seconds, or close the Start Menu and open it again
+to refresh faster, and it should be gone. Did you notice that it didn’t kick you
+to <em>Control Panel - Programs and Features</em> to select the app and uninstall
+it again? This is already a better user experience!</p>
+
+<h3 id="make-an-msix-package-">Make an MSIX Package <a name="make_msix_pkg"></a></h3>
+
+<p>Now it is time for the real deal. With a PowerShell console in the project
+directory, issue the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">makeappx.exe</span><span class="w"> </span><span class="nx">pack</span><span class="w"> </span><span class="nx">/d</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\</span><span class="w"> </span><span class="nx">/p</span><span class="w"> </span><span class="nx">demo.msix</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="n">Processing</span><span class="w"> </span><span class="s2">"\\?\C:\dev\pyinstaller_and_msix\dist\demo\msix_assets\logo_150x150.png"</span><span class="w"> </span><span class="o">...</span><span class="w">
+</span><span class="n">Processing</span><span class="w"> </span><span class="s2">"\\?\C:\dev\pyinstaller_and_msix\dist\demo\Demo.AppInstaller"</span><span class="w"> </span><span class="o">...</span><span class="w">
+</span><span class="n">Package</span><span class="w"> </span><span class="nx">creation</span><span class="w"> </span><span class="nx">succeeded.</span><span class="w">
+</span></code></pre></div></div>
+
+<p>You should have a demo.msix file in the project directory. Launching the
+file will bring up the MSIX installer, but since the package is not signed, the
+installer will not allow installation. So let’s sign it.</p>
+
+<h3 id="sign-the-msix-package">Sign the MSIX Package</h3>
+
+<p>With <em>PowerShell running as Administrator</em>, navigate to the project directory and
+issue the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">signtool</span><span class="w"> </span><span class="nx">sign</span><span class="w"> </span><span class="nx">/fd</span><span class="w"> </span><span class="nx">sha256</span><span class="w"> </span><span class="nx">/v</span><span class="w"> </span><span class="nx">/sm</span><span class="w"> </span><span class="nx">/s</span><span class="w"> </span><span class="nx">TrustedPeople</span><span class="w"> </span><span class="nx">/a</span><span class="w"> </span><span class="nx">/t</span><span class="w"> </span><span class="nx">http://timestamp.digicert.com</span><span class="w"> </span><span class="o">.</span><span class="nx">\demo.msix</span><span class="w">
+</span><span class="n">The</span><span class="w"> </span><span class="nx">following</span><span class="w"> </span><span class="nx">certificate</span><span class="w"> </span><span class="nx">was</span><span class="w"> </span><span class="nx">selected:</span><span class="w">
+    </span><span class="n">Issued</span><span class="w"> </span><span class="nx">to:</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">Appx</span><span class="w"> </span><span class="nx">Demo</span><span class="w">
+    </span><span class="n">Issued</span><span class="w"> </span><span class="nx">by:</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">Appx</span><span class="w"> </span><span class="nx">Demo</span><span class="w">
+    </span><span class="n">Expires:</span><span class="w">   </span><span class="nx">Thu</span><span class="w"> </span><span class="nx">Aug</span><span class="w"> </span><span class="nx">01</span><span class="w"> </span><span class="nx">08:47:14</span><span class="w"> </span><span class="nx">2024</span><span class="w">
+    </span><span class="n">SHA1</span><span class="w"> </span><span class="nx">hash:</span><span class="w"> </span><span class="nx">7CD6EED1AD704AAEB7C5D0ECE94051D50879EB0F</span><span class="w">
+
+</span><span class="n">Done</span><span class="w"> </span><span class="nx">Adding</span><span class="w"> </span><span class="nx">Additional</span><span class="w"> </span><span class="nx">Store</span><span class="w">
+</span><span class="n">Successfully</span><span class="w"> </span><span class="nx">signed:</span><span class="w"> </span><span class="o">.</span><span class="nx">\demo.msix</span><span class="w">
+
+</span><span class="n">Number</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="nx">successfully</span><span class="w"> </span><span class="nx">Signed:</span><span class="w"> </span><span class="nx">1</span><span class="w">
+</span><span class="n">Number</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">warnings:</span><span class="w"> </span><span class="nx">0</span><span class="w">
+</span><span class="n">Number</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">errors:</span><span class="w"> </span><span class="nx">0</span><span class="w">
+
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>The /t option provides a timestamp server to produce a timestamp for the
+signature <a href="https://learn.microsoft.com/en-us/windows/msix/package/signing-package-overview#timestamping" title="Microsoft Docs: Timestamping">to be valid when the certificate expires</a>.</p>
+</blockquote>
+
+<p>And with that, the MSIX package is signed. Launch it and install the application.</p>
+
+<p><img src="/assets/python_msix/msix_install.png" alt="MSIX Installer for Demo App" title="MSIX Installer for Demo App" /></p>
+
+<p>Within a few seconds, the app will install and launch like so:</p>
+
+<p><img src="/assets/python_msix/msix_demo_app.png" alt="Python Demo App from MSIX Installation" title="Python Demo App from MSIX Installation" /></p>
+
+<blockquote>
+  <p>As you can see from the path in the title bar, the <a href="https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-behind-the-scenes" title="Microsoft Docs: Understanding how packaged desktop apps run on Windows">application launched
+from the <em>WindowsApps</em> folder</a>. In addition, we can see the <a href="https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/package-identity-overview#package-full-name" title="Microsoft Docs: Package Full Name">Package
+Full Name (PFuN)</a>
+<em>Python.Demo.MSIX.App_…</em>, the unique identifier for
+the application.</p>
+</blockquote>
+
+<h2 id="distribution">Distribution</h2>
+
+<p>There are <a href="https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/desktop-to-uwp-distribute" title="Microsoft Docs: Distribute your packaged desktop app">two methods to distribute the MSIX package</a>; via the Microsoft
+Store or an external source. If you use the Microsoft Store, Microsoft will sign
+the MSIX package and provide an entire ecosystem for you to manage your apps. If
+you use an external source, you must code-sign the MSIX package.  That said, the
+application can still be automatically updated by using an AppInstaller file.</p>
+
+<h3 id="microsoft-store">Microsoft Store</h3>
+
+<p>As stated above, Microsoft will sign the submitted MSIX packages
+for you. You may be wondering what the catch is, Fair enough, here goes:</p>
+
+<ul>
+  <li>Registering a <a href="https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/partner-center-developer-account" title="Microsoft Docs: Developer accounts in Partner Center">new account as a developer is $19 USD…and that’s it</a>, no annual fee!</li>
+  <li>Requires compliance with <a href="https://learn.microsoft.com/en-us/windows/apps/publish/store-policies-and-code-of-conduct">Microsoft Store Policies and Code of Conduct</a>, some interesting highlights:
+    <ul>
+      <li>10.2.1 - Products that browse the web must use the Chromium or Gecko open-source engine.</li>
+      <li>10.13.10 - Products that emulate a game system or platform are not allowed.</li>
+    </ul>
+  </li>
+  <li>If you intend to charge for your app using the Microsoft Store to handle
+the transactions, then Microsoft will take a cut of the revenue. See Section 6 of the
+<a href="https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWZqKf" title="Microsoft Store Developer App Agreement">Microsft Store Developer App Agreement</a> for details.</li>
+  <li>Lastly, each app and update for the application is required to go through an approval process.</li>
+</ul>
+
+<h4 id="packaging-for-the-store">Packaging for the Store</h4>
+
+<p>Publishing to the Microsoft store requires several additional steps, reference this
+<a href="https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/overview?pivots=store-installer-msix" title="Microsoft Docs: Publish your app">outline on publishing your app</a>. In addition, the MSIX package manifest
+will need to be <a href="https://learn.microsoft.com/en-us/windows/apps/publish/view-app-identity-details" title="Microsoft Docs: View app identity details">updated with the Product Identity information Microsoft provides</a>
+for the application. It will look something like this on the Microsoft Partner
+Center site:</p>
+
+<p><img src="/assets/python_msix/mpc_app_product_id.png" alt="Microsoft Partner Center App Product Identity" title="Microsoft Partner Center App Product Identity" /></p>
+
+<p>Update the <code class="language-plaintext highlighter-rouge">AppxManifest.xml</code> file with that information:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version='1.0' encoding='utf-8'?&gt;</span>
+<span class="nt">&lt;Package</span> <span class="err">...</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Identity</span> <span class="na">Name=</span><span class="s">"12345&lt;Publisher Name&gt;.PythonMSIXAppDemo"</span> <span class="na">Publisher=</span><span class="s">"CN=&lt;UUID&gt;"</span> <span class="err">...</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Properties&gt;</span>
+    <span class="nt">&lt;DisplayName&gt;</span>Python MSIX App Demo<span class="nt">&lt;/DisplayName&gt;</span>
+    <span class="nt">&lt;PublisherDisplayName&gt;&lt;Publisher</span> <span class="err">Name</span><span class="nt">&gt;&lt;/PublisherDisplayName&gt;</span>
+...
+</code></pre></div></div>
+
+<p>And <a href="#make_msix_pkg">rebuild the MSIX package</a>. Do not code-sign the package, as
+Microsoft will do that part. Run the package through the <a href="https://learn.microsoft.com/en-us/windows/uwp/debug-test-perf/windows-app-certification-kit" title="Microsoft Docs: Windows App Certification Kit">Windows App
+Certification Kit</a>. Once everything looks good, submit the package to Microsoft.
+If the package checks out it will show up as validated in the Partner Center.</p>
+
+<p><img src="/assets/python_msix/mpc_submitted_msix.png" alt="Microsoft Partner Center Submitted MSIX Package" title="Microsoft Partner Center Validated MSIX Package" /></p>
+
+<h4 id="full-trust-requirements">Full-Trust Requirements</h4>
+
+<p>The AppManifest uses <code class="language-plaintext highlighter-rouge">mediumIL</code> for the required Trust Level, also known as
+<em>Full-Trust</em>. In short, this requests the application have <a href="https://learn.microsoft.com/en-us/windows/win32/secauthz/mandatory-integrity-control">access to the system</a>
+similar to a traditional desktop application. Microsoft has
+additional requirements for this Trust Level for store submissions, such as a
+mandatory privacy policy and a written statement justifying it in the
+application submission.</p>
+
+<p><a href="https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-application">Another option, <code class="language-plaintext highlighter-rouge">appContainer</code>, is available</a>. This provides a more sand-boxed
+environment for the application, using a <a href="https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-behind-the-scenes#appdata-operations-on-windows-10-version-1903-and-later" title="Microsoft Docs: Virtualized Apps">virtual file system and registry</a> for
+specific directories. I have not evaluated this option, but it could be worth
+exploring.</p>
+
+<h3 id="external-source">External Source</h3>
+
+<p>MSIX can be managed from an external source as well. This is done by providing
+an AppInstaller file, which provides the location of the MSIX package with
+additional metadata for things like update options. Executing the AppInstaller
+file provides the same experience as installing the package directly; behind the
+scenes, the package is downloaded from the source and installed.</p>
+
+<h4 id="setup-a-local-web-server">Setup a Local Web Server</h4>
+
+<p>The following section outlines how to set up a local web server as a source for the demo
+application, providing a playground for testing different scenarios and options
+in the AppInstaller file.</p>
+
+<h4 id="adding-loopback-exemption">Adding Loopback Exemption</h4>
+
+<p>The Desktop App Installer application, along with other Windows 10 applications,
+<a href="https://learn.microsoft.com/en-us/windows/msix/app-installer/web-install-iis#step-8---add-loopback-exemption-for-app-installer">are restricted from using IP loopback addresses</a>. Add an exception for the
+MSIX installer by launching PowerShell as Administrator and issuing the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">CheckNetIsolation.exe</span><span class="w"> </span><span class="nx">LoopbackExempt</span><span class="w"> </span><span class="nt">-a</span><span class="w"> </span><span class="nt">-n</span><span class="o">=</span><span class="s2">"microsoft.desktopappinstaller_8wekyb3d8bbwe"</span><span class="w">
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">CheckNetIsolation.exe</span><span class="w"> </span><span class="nx">LoopbackExempt</span><span class="w"> </span><span class="nt">-s</span><span class="w">
+</span><span class="n">List</span><span class="w"> </span><span class="nx">Loopback</span><span class="w"> </span><span class="nx">Exempted</span><span class="w"> </span><span class="nx">AppContainers</span><span class="w">
+
+</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-----------------------------------------------------------------</span><span class="w">
+    </span><span class="n">Name:</span><span class="w"> </span><span class="nx">microsoft.desktopappinstaller_8wekyb3d8bbwe</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="nginx">Nginx</h4>
+
+<p>If you have Docker installed, launch PowerShell in your project directory and
+issue the following to set up a local web server to host the MSIX package and
+AppInstaller file:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">mkdir</span><span class="w"> </span><span class="nx">msix_site</span><span class="w">
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">docker</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="nt">--rm</span><span class="w"> </span><span class="nt">-v</span><span class="w"> </span><span class="o">.</span><span class="nx">/msix_site:/usr/share/nginx/html:ro</span><span class="w">  </span><span class="nt">-p</span><span class="w"> </span><span class="nx">80:80</span><span class="w"> </span><span class="nx">nginx</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If not, you can download <a href="https://nginx.org/en/docs/windows.html">Nginx for Windows</a>, and extract the archive.
+Start the server by bringing up a PowerShell console and from the <code class="language-plaintext highlighter-rouge">nginx</code>
+directory issue:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="nx">nginx</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="appinstaller">AppInstaller</h4>
+
+<p>It is possible to <a href="https://learn.microsoft.com/en-us/windows/msix/app-installer/how-to-create-appinstaller-file" title="Microsoft Docs: Create an AppInstaller file manually">write the AppInstaller XML file manually</a>, however, to keep
+things simple, I have added code in the Python script to generate it via the
+<code class="language-plaintext highlighter-rouge">--gen-installer</code> option.</p>
+
+<p>Using a PowerShell console, navigate to the project directory and type the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="o">.</span><span class="nx">/.venv/Scripts/Activate.ps1</span><span class="w">
+</span><span class="p">(</span><span class="n">venv</span><span class="p">)</span><span class="w"> </span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">python</span><span class="w"> </span><span class="o">.</span><span class="nx">\gen_msix_xml.py</span><span class="w"> </span><span class="nt">--app-version</span><span class="w"> </span><span class="nx">1.0.0.0</span><span class="w"> </span><span class="nt">--manifest</span><span class="w"> </span><span class="o">.</span><span class="nx">\manifest.json</span><span class="w"> </span><span class="nt">--gen-installer</span><span class="w"> </span><span class="nt">--logo-dir</span><span class="w"> </span><span class="o">.</span><span class="nx">\logos</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\</span><span class="w">
+</span><span class="n">Generating</span><span class="w"> </span><span class="nx">MSIX</span><span class="w"> </span><span class="nx">files...</span><span class="w">
+</span><span class="kr">Using</span><span class="w"> </span><span class="n">Code</span><span class="w"> </span><span class="nx">Signing</span><span class="w"> </span><span class="nx">Certificate:</span><span class="w">
+ </span><span class="s1">'Python Appx Demo Cert'</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="n">CD6EED1AD704AAEB7C5D0ECE94051D50879EB0F</span><span class="w">
+
+</span><span class="n">Generated</span><span class="w"> </span><span class="nx">AppxManifest</span><span class="w">
+</span><span class="n">Generated</span><span class="w"> </span><span class="nx">AppInstaller</span><span class="w">
+</span><span class="n">Completed</span><span class="w"> </span><span class="nx">Successfully</span><span class="o">!</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Make and sign the MSIX package <a href="#make_msix_pkg">following these steps</a>. Copy both the MSIX
+package and AppInstaller file to the web server directory.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">cp</span><span class="w"> </span><span class="o">.</span><span class="nx">\dist\demo\Demo.AppInstaller</span><span class="w"> </span><span class="o">.</span><span class="nx">\msix_site\</span><span class="w">
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">cp</span><span class="w"> </span><span class="o">.</span><span class="nx">\demo.msix</span><span class="w"> </span><span class="o">.</span><span class="nx">\msix_site\</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If you are not using the Docker method, copy the files to the html directory
+under where nginx was extracted.</p>
+
+<p>After that, download the AppInstaller file from
+<a href="http://localhost/Demo.AppInstaller">http://localhost/Demo.AppInstaller</a> and
+launch it. The MSIX installer will launch, and in the background pull the latest
+AppInstaller file from the server, download the MSIX, and then run it guiding
+you through the same installation process as before.</p>
+
+<h4 id="trust-your-self-signed-cert">Trust Your Self-Signed Cert</h4>
+
+<p>A while back I mentioned that it would be possible to get around purchasing a
+trusted code-signing certificate. First, let’s see what happens when the
+a user downloads and runs the AppInstaller file.</p>
+
+<p><img src="/assets/python_msix/msix_app_install_cert_trust.png" alt="MSIX Install Untrusted Cert Dialog" title="MSIX Installer with Untrusted Certificate Dialog" /></p>
+
+<p>From the screenshot above, the user cannot install the application as the
+certificate it is signed with is not trusted. In order for the user to trust
+the application, you will need to export the public key from the self-signed
+certificate and supply it for the user.</p>
+
+<p>With <em>PowerShell running as Administrator</em>, navigate to the project directory and
+issue the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nv">$cert</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Get-ChildItem</span><span class="w"> </span><span class="nx">Cert:\LocalMachine\TrustedPeople</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Where-Object</span><span class="w"> </span><span class="p">{</span><span class="bp">$_</span><span class="o">.</span><span class="nf">Subject</span><span class="w"> </span><span class="o">-like</span><span class="w"> </span><span class="s2">"*Python Appx Demo*"</span><span class="p">}</span><span class="w">
+</span><span class="n">PS</span><span class="err">&gt;</span><span class="w"> </span><span class="nv">$cert</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Export-Certificate</span><span class="w"> </span><span class="nt">-FilePath</span><span class="w"> </span><span class="nx">demo.cer</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Add the file to the web server directory. The user can then download the certificate and
+double-click it to run the Certificate Import Wizard.</p>
+
+<p><img src="/assets/python_msix/msix_lmcert_adding_trusted_people.png" alt="lmcert Adding Cert to Trusted People" title="Add Self-Signed Cert to Trusted People" /></p>
+
+<p>First, select <em>Local Machine</em> as the store location, click <em>Next</em>, then select
+<em>Place all certificates in the following store</em> and select <em>Trusted People</em>, and finish
+the process. That is all there is to it; the user can now run the AppInstaller
+file to install the application.</p>
+
+<h4 id="performing-updates">Performing Updates</h4>
+
+<p>Windows can, based on the settings in the AppInstaller file, periodically check
+the external source AppInstaller file to see if there are updates. It does this by
+examining both the version of the AppInstaller and the version of the MSIX package
+listed in the AppInstaller file.</p>
+
+<p>If, for example, <code class="language-plaintext highlighter-rouge">HoursBetweenUpdateChecks</code> was to be updated from 0 to 24 hours,
+then updating the version of the AppInstaller along with the update setting
+will apply the new setting for the client once they either launch the
+application (as 0 will trigger an update check when the app is launched) or the
+background update task runs. The update settings may also be changed in the AppInstaller file without updating
+the AppInstaller version if the MSIX package version is incremented.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">manifest.json</code> file in the project directory contains the update options
+for Appinstaller.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"UpdateSettings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"OnLaunch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"HoursBetweenUpdateChecks"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"ShowPrompt"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"UpdateBlocksActivation"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"AutomaticBackgroundTask"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ForceUpdateFromAnyVersion"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Listed below is a summary of what the update settings do, for more information see the
+<a href="https://learn.microsoft.com/en-us/windows/msix/app-installer/update-settings" title="Microsoft Docs: Configure update settings in the App Installer file">Microsoft Docs on AppInstaller Update Settings</a>.</p>
+
+<table>
+  <tr>
+    <td><code>HoursBetweenUpdateChecks</code></td>
+    <td>
+      Hours to wait before checking for an update. If available, the update runs in
+      the background once the app is launched.
+    </td>
+  </tr>
+  <tr>
+    <td><code>ShowPrompt</code></td>
+    <td>
+      If <code>HoursBetweenUpdateChecks</code> is expired and an update is available,
+      a prompt appears at launch about the update.
+    </td>
+  </tr>
+  <tr>
+    <td><code>UpdateBlocksActivation</code></td>
+    <td>
+     Similar to <code>ShowPrompt</code> except it blocks user from running the
+     current version at prompt, only allowing to update.
+    </td>
+  </tr>
+  <tr>
+    <td><code>AutomaticBackgroundTask</code></td>
+    <td>
+      Every 8 hours an update check is performed in the background and, if
+      available, the app is updated.
+    </td>
+  </tr>
+  <tr>
+    <td><code>ForceUpdateFromAnyVersion</code></td>
+    <td>
+      Permits downgrading an app as an update. Otherwise, the app version can
+      only increment to trigger an update.
+    </td>
+  </tr>
+</table>
+
+<h2 id="summary">Summary</h2>
+
+<p>This was a quick overview on how to package a Python application with MSIX. Be
+sure to check out <a href="https://learn.microsoft.com/en-us/windows/msix/resources" title="MSIX resources">MSIX resources</a> for more information on MSIX. In
+addition, please feel free to use the <a href="https://github.com/82phil/msix_python_hello_world" title="Python MSIX Demo Project GitHub Repo">Python MSIX demo project</a> as a
+starting point to package your own applications.</p>]]></content><author><name></name></author><category term="python" /><category term="python" /><category term="msix" /><summary type="html"><![CDATA[This article demonstrates how to use MSIX to package a Windows desktop application written in Python and techniques to distribute it. MSIX is a packaging format from Microsoft that offers native installation and application updates, distributed via the Microsoft Store or from an external source. There are other key benefits, such as avoiding Windows SmartScreen prompts and options for code-signing. For an in-depth outline of these features and more, see the MISX resources.]]></summary></entry><entry><title type="html">Docker for Windows</title><link href="/wsl/2022/09/29/docker_wsl.html" rel="alternate" type="text/html" title="Docker for Windows" /><published>2022-09-29T00:00:00-07:00</published><updated>2022-09-29T00:00:00-07:00</updated><id>/wsl/2022/09/29/docker_wsl</id><content type="html" xml:base="/wsl/2022/09/29/docker_wsl.html"><![CDATA[<p>There are two options to support running Linux containers on Windows; Docker
 Desktop and Docker under WSL2. Docker Desktop
 <a href="https://www.docker.com/pricing/faq/">may require a subscription for business use</a>.
 However, it is easy to set up and run. In addition, it provides a simple way
